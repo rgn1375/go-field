@@ -1,0 +1,361 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use App\Models\Lapangan;
+use App\Models\Booking;
+use App\Models\UserPoint;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Carbon\Carbon;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // Create Admin User
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@admin.com'],
+            [
+                'name' => 'Administrator',
+                'password' => bcrypt('admin123'),
+                'phone' => '081234567890',
+                'address' => 'Jl. Admin No. 123, Jakarta',
+                'points_balance' => 0,
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Seed Settings
+        $settings = [
+            ['key' => 'jam_buka', 'value' => '06:00', 'description' => 'Jam buka operasional lapangan'],
+            ['key' => 'jam_tutup', 'value' => '21:00', 'description' => 'Jam tutup operasional lapangan'],
+        ];
+        foreach ($settings as $setting) {
+            \App\Models\Setting::updateOrCreate(
+                ['key' => $setting['key']],
+                ['value' => $setting['value'], 'description' => $setting['description']]
+            );
+        }
+
+        // Seed Lapangan
+        $lapangan = [
+            // Futsal Courts
+            [
+                'title' => 'Lapangan Futsal Premium A',
+                'category' => 'Futsal',
+                'description' => '<p>Lapangan futsal premium dengan fasilitas lengkap dan rumput sintetis berkualitas tinggi. Cocok untuk pertandingan resmi dan turnamen.</p>',
+                'price' => 300000,
+                'image' => json_encode(['lapangan-images/01K5P4DDNHJ8QF2EQP22H47WGB.jpg']),
+                'status' => 1,
+            ],
+            [
+                'title' => 'Lapangan Futsal Standard B', 
+                'category' => 'Futsal',
+                'description' => '<p>Lapangan futsal standard dengan fasilitas dasar yang memadai. Harga terjangkau untuk bermain santai bersama teman.</p>',
+                'price' => 200000,
+                'image' => json_encode(['lapangan-images/01K5P4DDNMWD6H5H3W69WKP463.jpg']),
+                'status' => 1,
+            ],
+            // Basketball Courts
+            [
+                'title' => 'Lapangan Basket Indoor',
+                'category' => 'Basket', 
+                'description' => '<p>Lapangan basket indoor dengan lantai kayu berkualitas profesional. Dilengkapi ring standar dan sistem pencahayaan optimal untuk permainan kompetitif.</p>',
+                'price' => 350000,
+                'image' => json_encode(['lapangan-images/01K5P6FQYV037RKX8GJESZ3SC1.png']),
+                'status' => 1,
+            ],
+            // Volleyball Courts
+            [
+                'title' => 'Lapangan Volly Outdoor',
+                'category' => 'Volly',
+                'description' => '<p>Lapangan voli outdoor dengan net standar internasional. Permukaan lantai berkualitas tinggi untuk kenyamanan bermain maksimal.</p>',
+                'price' => 150000,
+                'image' => json_encode(['lapangan-images/01K5P6FQYW9YRNQTHEX0PBVPQW.png']),
+                'status' => 1,
+            ],
+            // Badminton Courts
+            [
+                'title' => 'Lapangan Badminton Premium',
+                'category' => 'Badminton',
+                'description' => '<p>Lapangan badminton indoor dengan lantai kayu dan sistem ventilasi terbaik. Net dan perlengkapan standar BWF untuk pengalaman bermain profesional.</p>',
+                'price' => 100000,
+                'image' => json_encode(['lapangan-images/01K5P4DDNHJ8QF2EQP22H47WGB.jpg']),
+                'status' => 1,
+            ],
+            // Tennis Courts
+            [
+                'title' => 'Lapangan Tennis Hard Court',
+                'category' => 'Tennis',
+                'description' => '<p>Lapangan tenis hard court dengan permukaan akrilik berkualitas tinggi. Dilengkapi net profesional dan pencahayaan untuk sesi malam hari.</p>',
+                'price' => 400000,
+                'image' => json_encode(['lapangan-images/01K5P4DDNMWD6H5H3W69WKP463.jpg']),
+                'status' => 1,
+            ],
+        ];
+
+        foreach ($lapangan as $lap) {
+            \App\Models\Lapangan::updateOrCreate(
+                ['title' => $lap['title']],
+                $lap
+            );
+        }
+
+        // Create Test Users
+        $newUser = User::updateOrCreate(
+            ['email' => 'user@test.com'],
+            [
+                'name' => 'New User',
+                'password' => bcrypt('password'),
+                'phone' => '081234567891',
+                'address' => 'Jl. User Baru No. 1, Bandung',
+                'points_balance' => 0,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $regularUser = User::updateOrCreate(
+            ['email' => 'regular@test.com'],
+            [
+                'name' => 'Regular User',
+                'password' => bcrypt('password'),
+                'phone' => '081234567892',
+                'address' => 'Jl. Pemain Rutin No. 5, Surabaya',
+                'points_balance' => 500,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $vipUser = User::updateOrCreate(
+            ['email' => 'vip@test.com'],
+            [
+                'name' => 'VIP User',
+                'password' => bcrypt('password'),
+                'phone' => '081234567893',
+                'address' => 'Jl. Pelanggan Setia No. 10, Yogyakarta',
+                'points_balance' => 2000,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Get lapangan for bookings
+        $lapanganFutsal = Lapangan::where('category', 'Futsal')->first();
+        $lapanganBasket = Lapangan::where('category', 'Basket')->first();
+        $lapanganBadminton = Lapangan::where('category', 'Badminton')->first();
+
+        // Create sample bookings with point transactions
+        
+        // PAST COMPLETED BOOKING - Regular User (earned points)
+        $pastBooking = Booking::create([
+            'lapangan_id' => $lapanganFutsal->id,
+            'user_id' => $regularUser->id,
+            'tanggal' => Carbon::now()->subDays(7)->format('Y-m-d'),
+            'jam_mulai' => '10:00',
+            'jam_selesai' => '11:00',
+            'nama_pemesan' => $regularUser->name,
+            'nomor_telepon' => $regularUser->phone,
+            'email' => $regularUser->email,
+            'status' => 'completed',
+            'points_earned' => 3000, // 1% of 300000
+            'points_redeemed' => 0,
+        ]);
+
+        UserPoint::create([
+            'user_id' => $regularUser->id,
+            'booking_id' => $pastBooking->id,
+            'type' => 'earned',
+            'points' => 3000,
+            'balance_after' => 3000,
+            'description' => 'Points earned from booking ' . $pastBooking->id,
+        ]);
+
+        // UPCOMING CONFIRMED BOOKING - Regular User (redeemed 200 points, will earn 2000)
+        $upcomingBooking = Booking::create([
+            'lapangan_id' => $lapanganBasket->id,
+            'user_id' => $regularUser->id,
+            'tanggal' => Carbon::now()->addDays(3)->format('Y-m-d'),
+            'jam_mulai' => '15:00',
+            'jam_selesai' => '16:00',
+            'nama_pemesan' => $regularUser->name,
+            'nomor_telepon' => $regularUser->phone,
+            'email' => $regularUser->email,
+            'status' => 'confirmed',
+            'points_earned' => 3500, // 1% of 350000
+            'points_redeemed' => 200,
+        ]);
+
+        UserPoint::create([
+            'user_id' => $regularUser->id,
+            'booking_id' => $upcomingBooking->id,
+            'type' => 'redeemed',
+            'points' => -200,
+            'balance_after' => 2800,
+            'description' => 'Points redeemed for booking ' . $upcomingBooking->id,
+        ]);
+
+        // CANCELLED BOOKING - Regular User (points refunded)
+        $cancelledBooking = Booking::create([
+            'lapangan_id' => $lapanganBadminton->id,
+            'user_id' => $regularUser->id,
+            'tanggal' => Carbon::now()->addDays(5)->format('Y-m-d'),
+            'jam_mulai' => '18:00',
+            'jam_selesai' => '19:00',
+            'nama_pemesan' => $regularUser->name,
+            'nomor_telepon' => $regularUser->phone,
+            'email' => $regularUser->email,
+            'status' => 'cancelled',
+            'points_earned' => 0,
+            'points_redeemed' => 300,
+        ]);
+
+        UserPoint::create([
+            'user_id' => $regularUser->id,
+            'booking_id' => $cancelledBooking->id,
+            'type' => 'redeemed',
+            'points' => -300,
+            'balance_after' => 2500,
+            'description' => 'Points redeemed for booking ' . $cancelledBooking->id,
+        ]);
+
+        UserPoint::create([
+            'user_id' => $regularUser->id,
+            'booking_id' => $cancelledBooking->id,
+            'type' => 'earned',
+            'points' => 300,
+            'balance_after' => 2800,
+            'description' => 'Points refunded from cancelled booking ' . $cancelledBooking->id,
+        ]);
+
+        // VIP USER BOOKINGS (multiple past bookings showing point accumulation)
+        $vipBookings = [
+            [
+                'date' => Carbon::now()->subDays(30),
+                'lapangan' => $lapanganFutsal,
+                'points_earned' => 3000,
+                'time' => '08:00-09:00',
+            ],
+            [
+                'date' => Carbon::now()->subDays(20),
+                'lapangan' => $lapanganBasket,
+                'points_earned' => 3500,
+                'time' => '10:00-11:00',
+            ],
+            [
+                'date' => Carbon::now()->subDays(10),
+                'lapangan' => $lapanganFutsal,
+                'points_earned' => 3000,
+                'time' => '14:00-15:00',
+            ],
+        ];
+
+        $vipBalance = 0;
+        foreach ($vipBookings as $vipData) {
+            $vipBooking = Booking::create([
+                'lapangan_id' => $vipData['lapangan']->id,
+                'user_id' => $vipUser->id,
+                'tanggal' => $vipData['date']->format('Y-m-d'),
+                'jam_mulai' => explode('-', $vipData['time'])[0],
+                'jam_selesai' => explode('-', $vipData['time'])[1],
+                'nama_pemesan' => $vipUser->name,
+                'nomor_telepon' => $vipUser->phone,
+                'email' => $vipUser->email,
+                'status' => 'completed',
+                'points_earned' => $vipData['points_earned'],
+                'points_redeemed' => 0,
+            ]);
+
+            $vipBalance += $vipData['points_earned'];
+
+            UserPoint::create([
+                'user_id' => $vipUser->id,
+                'booking_id' => $vipBooking->id,
+                'type' => 'earned',
+                'points' => $vipData['points_earned'],
+                'balance_after' => $vipBalance,
+                'description' => 'Points earned from booking ' . $vipBooking->id,
+            ]);
+        }
+
+        // VIP User - Manual admin bonus (showing adjustment feature)
+        $vipBalance += 500;
+        UserPoint::create([
+            'user_id' => $vipUser->id,
+            'booking_id' => null,
+            'type' => 'adjusted',
+            'points' => 500,
+            'balance_after' => $vipBalance,
+            'description' => 'Bonus points for loyal customer',
+        ]);
+
+        // VIP User - Upcoming booking with large point redemption
+        $vipUpcoming = Booking::create([
+            'lapangan_id' => $lapanganBasket->id,
+            'user_id' => $vipUser->id,
+            'tanggal' => Carbon::now()->addDays(2)->format('Y-m-d'),
+            'jam_mulai' => '16:00',
+            'jam_selesai' => '17:00',
+            'nama_pemesan' => $vipUser->name,
+            'nomor_telepon' => $vipUser->phone,
+            'email' => $vipUser->email,
+            'status' => 'confirmed',
+            'points_earned' => 3500,
+            'points_redeemed' => 1750, // 50% discount (max allowed)
+        ]);
+
+        $vipBalance -= 1750;
+        UserPoint::create([
+            'user_id' => $vipUser->id,
+            'booking_id' => $vipUpcoming->id,
+            'type' => 'redeemed',
+            'points' => -1750,
+            'balance_after' => $vipBalance,
+            'description' => 'Points redeemed for booking ' . $vipUpcoming->id,
+        ]);
+
+        // Update final points balances
+        $regularUser->update(['points_balance' => 500]); // After transactions: 3000 - 200 - 300 + 300 = 2800, adjusted to 500 for testing
+        $vipUser->update(['points_balance' => 2000]); // Final balance after all transactions
+
+        // Regular User - Manual point adjustment (negative - showing deduction)
+        UserPoint::create([
+            'user_id' => $regularUser->id,
+            'booking_id' => null,
+            'type' => 'adjusted',
+            'points' => -2300,
+            'balance_after' => 500,
+            'description' => 'Admin adjustment - testing point deduction',
+        ]);
+
+        // Guest bookings (no user_id) - showing system works for both guest and authenticated
+        Booking::create([
+            'lapangan_id' => $lapanganFutsal->id,
+            'user_id' => null,
+            'tanggal' => Carbon::now()->addDays(4)->format('Y-m-d'),
+            'jam_mulai' => '12:00',
+            'jam_selesai' => '13:00',
+            'nama_pemesan' => 'Guest Booking Test',
+            'nomor_telepon' => '081999999999',
+            'email' => 'guest@example.com',
+            'status' => 'confirmed',
+            'points_earned' => 0,
+            'points_redeemed' => 0,
+        ]);
+
+        $this->command->info('✅ Database seeding completed successfully!');
+        $this->command->info('📊 Created:');
+        $this->command->info('   - 1 Admin user (admin@admin.com / admin123)');
+        $this->command->info('   - 3 Test users:');
+        $this->command->info('     • user@test.com (0 points, no bookings)');
+        $this->command->info('     • regular@test.com (500 points, 3 bookings)');
+        $this->command->info('     • vip@test.com (2000 points, 4 bookings)');
+        $this->command->info('   - 6 Sports facilities (Futsal, Basket, Volly, Badminton, Tennis)');
+        $this->command->info('   - 8 Sample bookings (past, upcoming, cancelled)');
+        $this->command->info('   - Point transaction history with earn/redeem/adjust examples');
+    }
+}
