@@ -37,6 +37,27 @@ Route::get('/debug-admin', function() {
     return response()->json($info, 200, [], JSON_PRETTY_PRINT);
 });
 
+// EMERGENCY LOGIN - Direct login as admin (REMOVE after fixing!)
+Route::get('/emergency-admin-login/{email}', function($email) {
+    $admin = \App\Models\User::where('email', $email)
+                             ->where('is_admin', true)
+                             ->first();
+    
+    if (!$admin) {
+        return response()->json([
+            'error' => 'Admin not found',
+            'available_admins' => \App\Models\User::where('is_admin', true)
+                                    ->pluck('email')->toArray()
+        ], 404);
+    }
+    
+    // Force login
+    auth()->login($admin);
+    session()->regenerate();
+    
+    return redirect('/admin')->with('success', 'Emergency login successful!');
+})->middleware('web');
+
 // Authenticated user dashboard
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
