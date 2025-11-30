@@ -85,8 +85,15 @@ Copy output ke environment variable `APP_KEY`
 ### Seed Database
 ```bash
 # Via Laravel Cloud Terminal/Tinker
-php artisan db:seed
+
+# Option A: Production only (Admin + Facilities)
+php artisan db:seed --class=ProductionSeeder --force
+
+# Option B: Full seed (Include test users + bookings)
+php artisan db:seed --force
 ```
+
+**Note**: Flag `--force` required to bypass production protection.
 
 ### Test Application
 - Public site: `https://your-project.laravel.cloud`

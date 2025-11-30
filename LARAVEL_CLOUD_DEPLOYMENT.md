@@ -132,23 +132,26 @@ php artisan queue:restart
 php artisan cache:clear
 ```
 
-## 🎯 Langkah 5: Database Seeding (Optional)
+## 🎯 Langkah 5: Database Seeding (Production)
 
-### Seed Admin & Test Data
+### Seed Admin & Essential Data
 
-Untuk pertama kali, Anda perlu seed data:
+Untuk pertama kali, Anda perlu seed data admin dan lapangan:
 
 1. Di Laravel Cloud dashboard, buka **Terminal** atau **Tinker**
-2. Jalankan:
+2. Jalankan salah satu:
+
+**Option A: Production Seeder (Recommended - Only Admin + Facilities)**
 ```bash
-php artisan db:seed
+php artisan db:seed --class=ProductionSeeder --force
 ```
 
-Atau gunakan SSH (jika tersedia):
+**Option B: Full Seeder (Include Test Users + Sample Bookings)**
 ```bash
-ssh your-project@your-server
-php artisan db:seed
+php artisan db:seed --force
 ```
+
+**Note**: Flag `--force` diperlukan untuk bypass production protection.
 
 ### Admin Credentials
 
