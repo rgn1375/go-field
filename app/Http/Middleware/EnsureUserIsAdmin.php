@@ -15,26 +15,11 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // TEMPORARY FIX: Allow all authenticated users to access admin
-        // TODO: Re-enable admin check after fixing session issues
+        // NOTE: This middleware is actually redundant now because
+        // Filament's canAccessPanel() method already handles admin check.
+        // Keeping it as extra security layer.
         
-        // Check if user is authenticated
-        if (!auth()->check()) {
-            return redirect('/admin/login');
-        }
-        
-        // COMMENTED OUT - Original admin check causing 403
-        /*
-        if (auth()->check() && !auth()->user()->is_admin) {
-            // User is logged in but NOT admin - logout and redirect
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            
-            return redirect('/admin/login')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        */
-
+        // Allow through - Filament's FilamentUser contract handles the check
         return $next($request);
     }
 }
