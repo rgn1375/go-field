@@ -266,41 +266,6 @@ FONNTE_API_KEY=your_api_key_here
 
 ---
 
-## 🚀 Deployment
-
-### Railway (Recommended)
-
-**Quick Deploy** - 10 minutes setup:
-```bash
-# 1. Push to GitHub
-git push origin main
-
-# 2. Create Railway project
-# Visit: https://railway.app/new
-# Select: Deploy from GitHub → BookingLapang
-
-# 3. Add PostgreSQL database
-# Click: + New → Database → PostgreSQL
-
-# 4. Set environment variables (see .env.production)
-
-# 5. Run migrations
-npm i -g @railway/cli
-railway login
-railway link
-railway run php artisan migrate --force
-railway run php artisan db:seed --force
-```
-
-**Full Guide**: See [`RAILWAY_QUICKSTART.md`](RAILWAY_QUICKSTART.md) or [`docs/RAILWAY_DEPLOYMENT.md`](docs/RAILWAY_DEPLOYMENT.md)
-
-**Cost**: ~$13-20/month (web + worker + database)
-
-### Production Checklist
-See [`DEPLOYMENT_CHECKLIST.md`](DEPLOYMENT_CHECKLIST.md) for complete deployment verification.
-
----
-
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -332,7 +297,39 @@ php artisan queue:listen
 
 ## 🚀 Deployment
 
-### Production Checklist
+### Deploy to Laravel Cloud (Recommended)
+
+Laravel Cloud provides one-click deployment with auto-scaling, managed database, and queue workers.
+
+```bash
+# Quick deploy
+./deploy-laravel-cloud.ps1   # Windows
+./deploy-laravel-cloud.sh    # Linux/Mac
+```
+
+**Complete Guide**: See [LARAVEL_CLOUD_DEPLOYMENT.md](LARAVEL_CLOUD_DEPLOYMENT.md)
+
+**Quick Steps**:
+1. Create account at [cloud.laravel.com](https://cloud.laravel.com)
+2. Connect GitHub repository: `rgn1375/go-field`
+3. Configure environment variables
+4. Click "Deploy Now"
+
+**What Laravel Cloud handles automatically**:
+- ✅ Database (MySQL)
+- ✅ Queue Workers (2 processes)
+- ✅ Cron Jobs (Laravel Scheduler)
+- ✅ SSL/TLS certificates
+- ✅ Auto-scaling
+- ✅ Monitoring & Logs
+- ✅ Automatic backups
+
+### Manual Production Deployment
+
+<details>
+<summary>Click to expand manual deployment guide</summary>
+
+#### Production Checklist
 - [ ] Set `APP_ENV=production` in `.env`
 - [ ] Set `APP_DEBUG=false`
 - [ ] Run `php artisan config:cache`
@@ -344,7 +341,7 @@ php artisan queue:listen
 - [ ] Set up database backups
 - [ ] Configure proper SMTP/WhatsApp credentials
 
-### Environment Variables
+#### Environment Variables
 ```env
 APP_NAME=GoField
 APP_ENV=production
@@ -360,6 +357,8 @@ DB_PASSWORD=
 
 QUEUE_CONNECTION=database
 ```
+
+</details>
 
 ---
 
