@@ -1,6 +1,39 @@
 <div wire:poll.30s="refreshAvailability">
     {{-- Auto-refresh every 30 seconds to update slot availability --}}
     
+    {{-- Guest User Alert --}}
+    @guest
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 mb-8 shadow-lg">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Login Diperlukan</h3>
+                    <p class="text-gray-700 mb-4">Anda dapat melihat jadwal dan harga lapangan, namun untuk melakukan booking silakan login atau daftar terlebih dahulu.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Login</span>
+                        </a>
+                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white text-emerald-700 border-2 border-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            <span>Daftar Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endguest
+    
     {{-- Lapangan Info --}}
     <div class="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-100 mb-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $lapangan->title }}</h2>
@@ -87,6 +120,7 @@
             <div class="grid grid-cols-3 md:grid-cols-4 gap-3">
                 @foreach ($availableTimeSlots as $slot)
                     @if ($slot['is_booked'])
+                        {{-- Slot yang sudah dipesan atau lewat - tampil untuk semua user --}}
                         <div class="p-4 rounded-xl text-center bg-gray-100 text-gray-400 cursor-not-allowed opacity-60">
                             <i class="ai-lock text-2xl mb-2"></i>
                             <p class="font-semibold">{{ $slot['display'] }}</p>
@@ -99,13 +133,24 @@
                             </p>
                         </div>
                     @else
-                        <button type="button"
-                            wire:click="selectTimeSlot('{{ $slot['start'] }}', '{{ $slot['end'] }}')"
-                            class="p-4 rounded-xl text-center transition-all {{ $selectedTimeSlot === $slot['start'] . '-' . $slot['end'] ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-50 text-gray-700 hover:bg-emerald-50' }}">
-                            <i class="ai-check-circle text-2xl mb-2"></i>
-                            <p class="font-semibold">{{ $slot['display'] }}</p>
-                            <p class="text-xs">Tersedia</p>
-                        </button>
+                        {{-- Slot tersedia --}}
+                        @auth
+                            {{-- Logged in user: bisa klik --}}
+                            <button type="button"
+                                wire:click="selectTimeSlot('{{ $slot['start'] }}', '{{ $slot['end'] }}')"
+                                class="p-4 rounded-xl text-center transition-all {{ $selectedTimeSlot === $slot['start'] . '-' . $slot['end'] ? 'bg-emerald-600 text-white shadow-lg' : 'bg-gray-50 text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 border border-gray-200' }}">
+                                <i class="ai-check-circle text-2xl mb-2 {{ $selectedTimeSlot === $slot['start'] . '-' . $slot['end'] ? 'text-white' : 'text-emerald-500' }}"></i>
+                                <p class="font-semibold">{{ $slot['display'] }}</p>
+                                <p class="text-xs">Tersedia</p>
+                            </button>
+                        @else
+                            {{-- Guest user: tampil tersedia tapi tidak bisa klik --}}
+                            <div class="p-4 rounded-xl text-center bg-emerald-50 border-2 border-emerald-200 text-emerald-700 cursor-not-allowed">
+                                <i class="ai-check-circle text-2xl mb-2"></i>
+                                <p class="font-semibold">{{ $slot['display'] }}</p>
+                                <p class="text-xs font-semibold">Tersedia</p>
+                            </div>
+                        @endauth
                     @endif
                 @endforeach
             </div>

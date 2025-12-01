@@ -10,17 +10,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Cache lapangan list for 5 minutes with pagination
-        $page = request()->get('page', 1);
-        $cacheKey = "lapangan_home_page_{$page}";
-        
-        $lapangan = Cache::remember($cacheKey, 300, function () {
-            return Lapangan::where('status', 1)
-                ->select('id', 'title', 'category', 'price', 'weekday_price', 'weekend_price', 
-                         'peak_hour_start', 'peak_hour_end', 'peak_hour_multiplier', 'image', 'status')
-                ->orderBy('created_at', 'desc')
-                ->paginate(6);
-        });
+        // Use cursor pagination for better performance
+        $lapangan = Lapangan::where('status', 1)
+            ->select('id', 'title', 'category', 'price', 'weekday_price', 'weekend_price', 
+                     'peak_hour_start', 'peak_hour_end', 'peak_hour_multiplier', 'image', 'status')
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc') // Secondary sort for stable pagination
+            ->cursorPaginate(9); // 9 items per page (3x3 grid)
         
         return view('home', compact('lapangan'));
     }

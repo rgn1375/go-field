@@ -339,6 +339,11 @@
                         </div>
                     @endforeach
                 </div>
+                
+                {{-- Pagination Links --}}
+                <div class="mt-8 flex justify-center">
+                    {{ $bookings->appends(['tab' => $tab])->links() }}
+                </div>
             @endif
         </div>
     </section>

@@ -17,14 +17,18 @@ class DashboardController extends Controller
         $user = Auth::user();
         $tab = $request->get('tab', 'upcoming');
 
-        // Base query
-        $query = $user->bookings()->with('lapangan')->orderBy('tanggal', 'desc')->orderBy('jam_mulai', 'desc');
+        // Base query with cursor pagination
+        $baseQuery = $user->bookings()
+            ->with('lapangan')
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('jam_mulai', 'desc')
+            ->orderBy('id', 'desc'); // Stable sort for cursor pagination
 
         // Filter by tab
         switch ($tab) {
             case 'upcoming':
                 // Tampilkan booking yang akan datang (pending atau confirmed) DAN belum lewat
-                $bookings = $query->whereIn('status', ['pending', 'confirmed'])
+                $bookings = $baseQuery->whereIn('status', ['pending', 'confirmed'])
                     ->where(function ($q) {
                         // Booking di masa depan
                         $q->whereDate('tanggal', '>', Carbon::today())
@@ -34,12 +38,12 @@ class DashboardController extends Controller
                                  ->whereTime('jam_mulai', '>', Carbon::now()->toTimeString());
                           });
                     })
-                    ->get();
+                    ->cursorPaginate(10);
                 break;
 
             case 'past':
                 // Tampilkan booking yang sudah lewat ATAU completed
-                $bookings = $query->where(function ($q) {
+                $bookings = $baseQuery->where(function ($q) {
                         // Status completed
                         $q->where('status', 'completed')
                           // ATAU confirmed tapi sudah lewat waktunya
@@ -56,15 +60,15 @@ class DashboardController extends Controller
                                  });
                           });
                     })
-                    ->get();
+                    ->cursorPaginate(10);
                 break;
 
             case 'cancelled':
-                $bookings = $query->where('status', 'cancelled')->get();
+                $bookings = $baseQuery->where('status', 'cancelled')->cursorPaginate(10);
                 break;
 
             default:
-                $bookings = $query->get();
+                $bookings = $baseQuery->cursorPaginate(10);
         }
 
         return view('dashboard.index', compact('user', 'bookings', 'tab'));

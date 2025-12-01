@@ -54,6 +54,12 @@ class BookingForm extends Component
             $this->no_telepon = $user->phone ?? '';
             $this->email = $user->email;
             $this->userPointsBalance = $user->points_balance;
+        } else {
+            // For guests, disable form fields (view only mode)
+            $this->nama_pemesan = '';
+            $this->no_telepon = '';
+            $this->email = '';
+            $this->userPointsBalance = 0;
         }
 
         $this->loadOperationalHours();
@@ -359,6 +365,12 @@ class BookingForm extends Component
 
     public function submitBooking()
     {
+        // CRITICAL: Require authentication
+        if (!Auth::check()) {
+            session()->flash('error', 'Silakan login terlebih dahulu untuk melakukan booking.');
+            return redirect()->route('login');
+        }
+
         $this->validate([
             'selectedDate' => 'required|date',
             'selectedTimeSlot' => 'required|string',
