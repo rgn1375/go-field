@@ -8,7 +8,6 @@ use Filament\Actions\EditAction;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Filters\SelectFilter;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Support\Icons\Heroicon;
@@ -109,8 +108,6 @@ class InvoicesTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc')
-            ->defaultPaginationPageOption(25)
-            ->paginationMode(PaginationMode::Cursor);
+            ->defaultSort('created_at', 'desc');
     }
 }

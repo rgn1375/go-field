@@ -240,7 +240,8 @@
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-600 mb-1">Alamat</p>
-                                <p class="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors duration-300">Jl. Soekarno Hatta no. 65</p>
+                                <p class="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors duration-300">Paskal Hyper Square, Jl. Pasir Kaliki No.25-27</p>
+                                <p class="text-sm text-gray-600">Ciroyom, Kec. Andir, Kota Bandung</p>
                             </div>
                             <i class="ai-arrow-right text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300"></i>
                         </div>
@@ -264,7 +265,7 @@
                 <div class="w-full md:w-7/12 animate-fade-in" style="animation-delay: 0.5s;">
                     <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-white hover:scale-[1.02] transition-transform duration-500">
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126646.20960979843!2d112.63028186062597!3d-7.275612006275408!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7fbf8381ac47f%3A0x3027a76e352be40!2sSurabaya%2C%20East%20Java!5e0!3m2!1sen!2sid!4v1751031816893!5m2!1sen!2sid"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.9007442850597!2d107.59746431431803!3d-6.902301269491937!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e64c7e8ed5d1%3A0x4a5d5e8c8c8c8c8c!2sBINUS%20%40%20Bandung!5e0!3m2!1sen!2sid!4v1733025600000!5m2!1sen!2sid"
                             class="w-full h-[500px]" style="border:0;" allowfullscreen="" loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
