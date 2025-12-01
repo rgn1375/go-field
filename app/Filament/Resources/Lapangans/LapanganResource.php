@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Toggle;
@@ -306,7 +307,9 @@ class LapanganResource extends Resource
                         2 => 'Under Maintenance',
                     ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->defaultPaginationPageOption(25)
+            ->paginationMode(PaginationMode::Cursor);
     }
 
     public static function getRelations(): array

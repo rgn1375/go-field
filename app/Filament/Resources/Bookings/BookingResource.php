@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
@@ -381,7 +382,9 @@ class BookingResource extends Resource
                 DeleteAction::make()
                     ->label('Hapus'),
             ])
-            ->defaultSort('tanggal', 'desc');
+            ->defaultSort('tanggal', 'desc')
+            ->defaultPaginationPageOption(25)
+            ->paginationMode(PaginationMode::Cursor); // Enable cursor-based pagination
     }
 
     public static function getRelations(): array
