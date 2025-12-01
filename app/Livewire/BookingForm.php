@@ -371,6 +371,12 @@ class BookingForm extends Component
             return redirect()->route('login');
         }
 
+        // CRITICAL: Require email verification
+        if (!Auth::user()->hasVerifiedEmail()) {
+            session()->flash('error', 'Silakan verifikasi email Anda terlebih dahulu untuk melakukan booking.');
+            return redirect()->route('verification.notice');
+        }
+
         $this->validate([
             'selectedDate' => 'required|date',
             'selectedTimeSlot' => 'required|string',

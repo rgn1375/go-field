@@ -14,6 +14,36 @@
 @section('content')
     <section class="pt-8 pb-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Email Verification Notice --}}
+            @if (!Auth::user()->hasVerifiedEmail())
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-2xl p-6 mb-8 shadow-lg animate-fade-in">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Verifikasi Email Diperlukan</h3>
+                            <p class="text-gray-700 mb-4">Silakan verifikasi alamat email Anda untuk dapat melakukan booking lapangan. Kami telah mengirim link verifikasi ke <strong>{{ Auth::user()->email }}</strong></p>
+                            <div class="flex flex-wrap gap-3">
+                                <form method="POST" action="{{ route('verification.send') }}">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white rounded-xl font-bold hover:bg-yellow-600 transition-all shadow-md hover:shadow-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                        Kirim Ulang Email Verifikasi
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Points Balance Card -->
             <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl shadow-lg p-8 mb-8 text-white animate-fade-in">
                 <div class="flex items-center justify-between">

@@ -22,8 +22,8 @@ Route::get('/storage/{path}', function ($path) {
     return response()->file($filePath);
 })->where('path', '.*')->name('storage.serve');
 
-// Authenticated user dashboard
-Route::middleware(['auth'])->group(function () {
+// Authenticated user dashboard - require email verification
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/bookings/{id}/cancel', [DashboardController::class, 'cancelBooking'])->name('dashboard.cancel-booking');
     
@@ -31,7 +31,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/{invoice}/download', [InvoiceController::class, 'download'])->name('invoice.download');
     Route::get('/invoice/{invoice}/view', [InvoiceController::class, 'view'])->name('invoice.view');
     Route::get('/invoice/{invoice}/stream', [InvoiceController::class, 'stream'])->name('invoice.stream');
-    
+});
+
+// Profile routes - auth only (allow unverified users to update profile)
+Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
