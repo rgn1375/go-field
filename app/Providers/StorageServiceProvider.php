@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class StorageServiceProvider extends ServiceProvider
 {
@@ -38,24 +39,28 @@ class StorageServiceProvider extends ServiceProvider
         $publicPath = public_path('storage');
         $storagePath = storage_path('app/public');
 
+        // Ensure storage/app/public directory exists first
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0755, true);
+            Log::info('Storage directory created: ' . $storagePath);
+        }
+
         // Check if link exists or is broken
         if (!file_exists($publicPath) || !is_link($publicPath)) {
             // Remove if it's a regular directory (not a symlink)
-            if (file_exists($publicPath) && !is_link($publicPath)) {
-                if (is_dir($publicPath)) {
-                    // Don't remove, might have files
-                    return;
-                }
+            if (file_exists($publicPath) && !is_link($publicPath) && is_dir($publicPath)) {
+                // Don't remove, might have files
+                return;
             }
 
             // Try to create symlink
             try {
                 if (!file_exists($publicPath)) {
                     symlink($storagePath, $publicPath);
-                    \Log::info('Storage link created automatically');
+                    Log::info('Storage link created automatically');
                 }
             } catch (\Exception $e) {
-                \Log::warning('Could not create storage link: ' . $e->getMessage());
+                Log::warning('Could not create storage link: ' . $e->getMessage());
             }
         }
     }
