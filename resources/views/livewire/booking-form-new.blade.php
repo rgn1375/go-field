@@ -91,7 +91,7 @@
             <div style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #10b981 #f3f4f6;">
                 <div style="display: flex; gap: 12px; padding-bottom: 16px; min-width: min-content;">
                     @foreach ($availableDates as $date)
-                        <button type="button" 
+                        <button type="button"
                             wire:click="selectDate('{{ $date['date'] }}')"
                             style="flex-shrink: 0; width: 100px;"
                             class="p-4 rounded-xl text-center transition-all border-2 {{ $selectedDate === $date['date'] ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-700 hover:border-emerald-500 hover:bg-emerald-50' }}">
@@ -168,7 +168,7 @@
             <form wire:submit.prevent="submitBooking" class="space-y-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
-                    <input type="text" wire:model="nama_pemesan" 
+                    <input type="text" wire:model="nama_pemesan"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none"
                         placeholder="Masukkan nama lengkap">
                     @error('nama_pemesan') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
@@ -176,7 +176,7 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Telepon</label>
-                    <input type="text" wire:model="no_telepon" 
+                    <input type="text" wire:model="no_telepon"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none"
                         placeholder="08xx xxxx xxxx">
                     @error('no_telepon') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
@@ -184,7 +184,7 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                    <input type="email" wire:model="email" 
+                    <input type="email" wire:model="email"
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none"
                         placeholder="email@example.com">
                     @error('email') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
@@ -215,7 +215,7 @@
                         <div class="border-t-2 border-emerald-200 mt-3 pt-3 space-y-1">
                             <div class="flex justify-between text-xs text-gray-600">
                                 <span>
-                                    {{ $priceData['is_weekend'] ? '🌴 Weekend' : '📅 Weekday' }} 
+                                    {{ $priceData['is_weekend'] ? '🌴 Weekend' : '📅 Weekday' }}
                                     ({{ $priceData['duration_hours'] }} jam)
                                 </span>
                                 <span>Rp {{ number_format($priceData['price_breakdown']['base'], 0, ',', '.') }}</span>
@@ -236,7 +236,7 @@
                     </div>
                 </div>
 
-                <button type="submit" 
+                <button type="submit"
                     class="w-full bg-emerald-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
                     <i class="ai-check"></i>
                     Konfirmasi Booking

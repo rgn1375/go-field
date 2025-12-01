@@ -48,8 +48,9 @@ class UserForm
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create')
                     ->maxLength(255)
-                    ->helperText('Leave blank to keep current password')
-                    ->columnSpanFull(),
+                    ->helperText('Set initial password for new user')
+                    ->columnSpanFull()
+                    ->visible(fn (string $context): bool => $context === 'create'),
             ]);
     }
 }

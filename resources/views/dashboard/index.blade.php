@@ -68,17 +68,17 @@
             <!-- Tabs -->
             <div class="bg-white rounded-xl shadow-lg mb-6 overflow-hidden animate-fade-in" style="animation-delay: 0.1s;">
                 <div class="flex border-b border-gray-200">
-                    <a href="{{ route('dashboard', ['tab' => 'upcoming']) }}" 
+                    <a href="{{ route('dashboard', ['tab' => 'upcoming']) }}"
                        class="flex-1 px-6 py-4 text-center font-semibold transition-colors {{ $tab === 'upcoming' ? 'bg-emerald-600 text-white' : 'text-gray-600 hover:bg-gray-50' }}">
                         <i class="ai-calendar {{ $tab === 'upcoming' ? '' : 'text-gray-400' }}"></i>
                         <span class="ml-2">Mendatang</span>
                     </a>
-                    <a href="{{ route('dashboard', ['tab' => 'past']) }}" 
+                    <a href="{{ route('dashboard', ['tab' => 'past']) }}"
                        class="flex-1 px-6 py-4 text-center font-semibold transition-colors {{ $tab === 'past' ? 'bg-emerald-600 text-white' : 'text-gray-600 hover:bg-gray-50' }}">
                         <i class="ai-clock {{ $tab === 'past' ? '' : 'text-gray-400' }}"></i>
                         <span class="ml-2">Riwayat</span>
                     </a>
-                    <a href="{{ route('dashboard', ['tab' => 'cancelled']) }}" 
+                    <a href="{{ route('dashboard', ['tab' => 'cancelled']) }}"
                        class="flex-1 px-6 py-4 text-center font-semibold transition-colors {{ $tab === 'cancelled' ? 'bg-emerald-600 text-white' : 'text-gray-600 hover:bg-gray-50' }}">
                         <i class="ai-circle-x {{ $tab === 'cancelled' ? '' : 'text-gray-400' }}"></i>
                         <span class="ml-2">Dibatalkan</span>
@@ -142,17 +142,17 @@
                                             {{ $isCancelled && $isWaitingRefund ? 'bg-orange-500 text-white' : '' }}
                                             {{ $isCancelled && !$isWaitingRefund ? 'bg-red-500 text-white' : '' }}
                                             {{ $booking->status === 'completed' ? 'bg-emerald-500 text-white' : '' }}">
-                                            @if ($isPending) 
+                                            @if ($isPending)
                                                 ⏱ Pending
-                                            @elseif ($isConfirmed) 
+                                            @elseif ($isConfirmed)
                                                 ✓ Dikonfirmasi
-                                            @elseif ($isCancelled && $isWaitingRefund) 
+                                            @elseif ($isCancelled && $isWaitingRefund)
                                                 ⏳ Menunggu Pembatalan
-                                            @elseif ($isCancelled) 
+                                            @elseif ($isCancelled)
                                                 ✗ Dibatalkan
-                                            @elseif ($booking->status === 'completed') 
+                                            @elseif ($booking->status === 'completed')
                                                 ✓ Selesai
-                                            @else 
+                                            @else
                                                 ⏱ Menunggu
                                             @endif
                                         </span>
@@ -329,12 +329,12 @@
                                         {{-- Download Invoice Button (for paid bookings) --}}
                                         @if($booking->payment_status === 'paid' && $booking->invoice)
                                             <div class="flex gap-2">
-                                                <a href="{{ route('invoice.view', $booking->invoice->id) }}" 
+                                                <a href="{{ route('invoice.view', $booking->invoice->id) }}"
                                                    class="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-black px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
                                                     <i class="ai-eye"></i>
                                                     Lihat Invoice
                                                 </a>
-                                                <a href="{{ route('invoice.download', $booking->invoice->id) }}" 
+                                                <a href="{{ route('invoice.download', $booking->invoice->id) }}"
                                                    class="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-black px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
                                                     <i class="ai-download"></i>
                                                     Download PDF
@@ -353,12 +353,12 @@
                                 @elseif($tab === 'past' && $booking->invoice)
                                     {{-- Past bookings: show download invoice button --}}
                                     <div class="mt-5 flex gap-2">
-                                        <a href="{{ route('invoice.view', $booking->invoice->id) }}" 
+                                        <a href="{{ route('invoice.view', $booking->invoice->id) }}"
                                            class="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
                                             <i class="ai-eye"></i>
                                             Lihat Invoice
                                         </a>
-                                        <a href="{{ route('invoice.download', $booking->invoice->id) }}" 
+                                        <a href="{{ route('invoice.download', $booking->invoice->id) }}"
                                            class="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
                                             <i class="ai-download"></i>
                                             Download PDF

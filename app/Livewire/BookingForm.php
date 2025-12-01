@@ -98,13 +98,13 @@ class BookingForm extends Component
 
     public function getDayName($dayOfWeek)
     {
-        $days = 
-        [0 => 'Min', 
-        1 => 'Sen', 
-        2 => 'Sel', 
-        3 => 'Rab', 
-        4 => 'Kam', 
-        5 => 'Jum', 
+        $days =
+        [0 => 'Min',
+        1 => 'Sen',
+        2 => 'Sel',
+        3 => 'Rab',
+        4 => 'Kam',
+        5 => 'Jum',
         6 => 'Sab'
     ];
         return $days[$dayOfWeek];
