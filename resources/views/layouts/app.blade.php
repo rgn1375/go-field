@@ -99,7 +99,7 @@
                     <div class="hidden md:flex items-center gap-4">
                         @auth
                             <!-- Authenticated User Menu -->
-                            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <div class="relative" x-data="{ open: false }" @click.away="open = false">
                                 <button @click="open = !open" type="button" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold text-sm">
                                         {{ substr(Auth::user()->name, 0, 1) }}
@@ -114,14 +114,15 @@
                                 </button>
 
                                 <div x-show="open" 
+                                     x-cloak
+                                     @click.away="open = false"
                                      x-transition:enter="transition ease-out duration-100"
                                      x-transition:enter-start="opacity-0 scale-95"
                                      x-transition:enter-end="opacity-100 scale-100"
                                      x-transition:leave="transition ease-in duration-75"
                                      x-transition:leave-start="opacity-100 scale-100"
                                      x-transition:leave-end="opacity-0 scale-95"
-                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
-                                     style="display: none;">
+                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="ai-dashboard"></i>
                                         <span>Dashboard</span>
