@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PaymentForm extends Component
 {
@@ -171,7 +172,16 @@ class PaymentForm extends Component
             $this->booking->save();
             
             // Create transaction record for payment history
-            Transaction::create($transactionData);
+            $transaction = Transaction::create($transactionData);
+            
+            // Log untuk debugging
+            Log::info('Transaction created successfully', [
+                'transaction_id' => $transaction->id,
+                'transaction_code' => $transaction->transaction_code,
+                'booking_id' => $this->booking->id,
+                'amount' => $transactionData['amount'],
+                'status' => $transactionData['status'],
+            ]);
             
             DB::commit();
             
@@ -183,6 +193,15 @@ class PaymentForm extends Component
             
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Log error dengan detail lengkap
+            Log::error('Payment submission failed', [
+                'booking_id' => $this->booking->id ?? null,
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+                'transaction_data' => $transactionData ?? null,
+            ]);
+            
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

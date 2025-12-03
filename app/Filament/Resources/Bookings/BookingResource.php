@@ -370,14 +370,32 @@ class BookingResource extends Resource
                             'status' => 'confirmed',
                         ]);
                         
-                        // Update transaction status to paid
-                        $record->transactions()
+                        // Update or create transaction for payment history
+                        $existingTransaction = $record->transactions()
                             ->whereIn('status', ['waiting_confirmation', 'pending'])
-                            ->update([
+                            ->first();
+                        
+                        if ($existingTransaction) {
+                            // Update existing transaction
+                            $existingTransaction->update([
                                 'status' => 'paid',
                                 'confirmed_at' => now(),
                                 'confirmed_by' => auth()->id(),
                             ]);
+                        } else {
+                            // Create new transaction if not exists (admin approval without user upload)
+                            \App\Models\Transaction::create([
+                                'booking_id' => $record->id,
+                                'payment_method_id' => $record->payment_method_id ?? 1, // Default to first payment method
+                                'amount' => $record->harga,
+                                'total_amount' => $record->harga,
+                                'status' => 'paid',
+                                'paid_at' => now(),
+                                'confirmed_at' => now(),
+                                'confirmed_by' => auth()->id(),
+                                'notes' => 'Admin approved payment directly',
+                            ]);
+                        }
                         
                         // Kasih poin untuk semua metode pembayaran (termasuk cash)
                         // Hitung poin berdasarkan harga (1% dari harga)
