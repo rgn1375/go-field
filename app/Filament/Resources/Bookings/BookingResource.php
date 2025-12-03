@@ -240,8 +240,8 @@ class BookingResource extends Resource
                     ->color('warning')
                     ->badge()
                     ->default('-')
-                    ->formatStateUsing(function (Booking $record): string {
-                        if ($record->refund_amount <= 0) {
+                    ->formatStateUsing(function (?Booking $record): string {
+                        if (!$record || $record->refund_amount <= 0) {
                             return '-';
                         }
                         $method = match($record->refund_method) {
@@ -251,8 +251,7 @@ class BookingResource extends Resource
                         };
                         return 'Rp ' . number_format($record->refund_amount) . ' ' . $method;
                     })
-                    ->toggleable(isToggledHiddenByDefault: false)
-                    ->visible(fn (Booking $record): bool => $record->status === 'cancelled'),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -295,15 +294,18 @@ class BookingResource extends Resource
                     ->modalWidth('2xl')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
-                    ->modalContent(function (Booking $record) {
+                    ->modalContent(function (?Booking $record) {
+                        if (!$record) {
+                            return null;
+                        }
                         // Eager load relationship untuk modal
                         $record->load('paymentMethod');
                         return view('filament.modals.payment-proof', [
                             'record' => $record,
                         ]);
                     })
-                    ->visible(function (Booking $record): bool {
-                        if ($record->payment_proof === null) {
+                    ->visible(function (?Booking $record): bool {
+                        if (!$record || $record->payment_proof === null) {
                             return false;
                         }
                         
@@ -385,8 +387,8 @@ class BookingResource extends Resource
                         }
                     })
                     ->successNotificationTitle('Pembayaran berhasil dikonfirmasi dan poin telah diberikan')
-                    ->visible(fn (Booking $record): bool =>
-                        in_array($record->payment_status, ['waiting_confirmation', 'unpaid'])
+                    ->visible(fn (?Booking $record): bool =>
+                        $record && in_array($record->payment_status, ['waiting_confirmation', 'unpaid'])
                     ),
                 
                 // Reject Payment
@@ -412,8 +414,8 @@ class BookingResource extends Resource
                         ]);
                     })
                     ->successNotificationTitle('Pembayaran ditolak')
-                    ->visible(fn (Booking $record): bool =>
-                        $record->payment_status === 'waiting_confirmation'
+                    ->visible(fn (?Booking $record): bool =>
+                        $record && $record->payment_status === 'waiting_confirmation'
                     ),
                 
                 EditAction::make()
@@ -446,7 +448,7 @@ class BookingResource extends Resource
                         }
                     })
                     ->successNotificationTitle('Pemesanan berhasil dibatalkan dan notifikasi telah dikirim')
-                    ->visible(fn (Booking $record): bool => in_array($record->status, ['pending', 'confirmed'])),
+                    ->visible(fn (?Booking $record): bool => $record && in_array($record->status, ['pending', 'confirmed'])),
                 
                 Action::make('confirm')
                     ->label('Konfirmasi')
@@ -455,7 +457,7 @@ class BookingResource extends Resource
                     ->requiresConfirmation()
                     ->action(fn (Booking $record) => $record->update(['status' => 'confirmed']))
                     ->successNotificationTitle('Pemesanan berhasil dikonfirmasi')
-                    ->visible(fn (Booking $record): bool => $record->status === 'pending'),
+                    ->visible(fn (?Booking $record): bool => $record && $record->status === 'pending'),
                 
                 // Process Manual Refund (Bank Transfer)
                 Action::make('process_refund')
@@ -509,7 +511,10 @@ class BookingResource extends Resource
                         ]);
                     })
                     ->successNotificationTitle('Refund berhasil diproses dan poin refund telah dicabut')
-                    ->visible(function (Booking $record): bool {
+                    ->visible(function (?Booking $record): bool {
+                        if (!$record) {
+                            return false;
+                        }
                         return $record->status === 'cancelled' &&
                                $record->refund_amount > 0 &&
                                $record->refund_method === 'points' &&
