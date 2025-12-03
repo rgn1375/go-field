@@ -9,16 +9,16 @@ class Lapangan extends Model
     protected $table = 'lapangan';
 
     protected $fillable = [
-        'title', 
-        'category', 
-        'description', 
-        'price', 
+        'sport_type_id',
+        'title',
+        'description',
+        'price',
         'weekday_price',
         'weekend_price',
         'peak_hour_start',
         'peak_hour_end',
         'peak_hour_multiplier',
-        'image', 
+        'image',
         'status',
         'jam_buka',
         'jam_tutup',
@@ -41,6 +41,22 @@ class Lapangan extends Model
         'maintenance_start' => 'date',
         'maintenance_end' => 'date',
     ];
+
+    /**
+     * Get the sport type for this lapangan.
+     */
+    public function sportType()
+    {
+        return $this->belongsTo(SportType::class);
+    }
+
+    /**
+     * Get all bookings for this lapangan.
+     */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 
     // Provide a virtual 'images' attribute for compatibility with views
     public function getImagesAttribute()
@@ -119,7 +135,7 @@ class Lapangan extends Model
     
     /**
      * Calculate dynamic price based on date, time, and duration
-     * 
+     *
      * @param string $date - Booking date (Y-m-d)
      * @param string $startTime - Start time (H:i)
      * @param string $endTime - End time (H:i)

@@ -17,6 +17,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // STEP 1: Seed sport types and payment methods first
+        $this->call([
+            SportTypeSeeder::class,
+            PaymentMethodSeeder::class,
+        ]);
+
         // Create Admin User
         $admin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
@@ -44,19 +50,26 @@ class DatabaseSeeder extends Seeder
         }
 
         // Seed Lapangan
+        // Get sport types for reference
+        $futsalType = \App\Models\SportType::where('code', 'futsal')->first();
+        $basketballType = \App\Models\SportType::where('code', 'basketball')->first();
+        $volleyballType = \App\Models\SportType::where('code', 'volleyball')->first();
+        $badmintonType = \App\Models\SportType::where('code', 'badminton')->first();
+        $tennisType = \App\Models\SportType::where('code', 'tennis')->first();
+
         $lapangan = [
             // Futsal Courts
             [
                 'title' => 'Lapangan Futsal Premium A',
-                'category' => 'Futsal',
+                'sport_type_id' => $futsalType->id,
                 'description' => '<p>Lapangan futsal premium dengan fasilitas lengkap dan rumput sintetis berkualitas tinggi. Cocok untuk pertandingan resmi dan turnamen.</p>',
                 'price' => 300000,
                 'image' => json_encode(['lapangan-images/01K5P4DDNHJ8QF2EQP22H47WGB.jpg']),
                 'status' => 1,
             ],
             [
-                'title' => 'Lapangan Futsal Standard B', 
-                'category' => 'Futsal',
+                'title' => 'Lapangan Futsal Standard B',
+                'sport_type_id' => $futsalType->id,
                 'description' => '<p>Lapangan futsal standard dengan fasilitas dasar yang memadai. Harga terjangkau untuk bermain santai bersama teman.</p>',
                 'price' => 200000,
                 'image' => json_encode(['lapangan-images/01K5P4DDNMWD6H5H3W69WKP463.jpg']),
@@ -65,7 +78,7 @@ class DatabaseSeeder extends Seeder
             // Basketball Courts
             [
                 'title' => 'Lapangan Basket Indoor',
-                'category' => 'Basket', 
+                'sport_type_id' => $basketballType->id,
                 'description' => '<p>Lapangan basket indoor dengan lantai kayu berkualitas profesional. Dilengkapi ring standar dan sistem pencahayaan optimal untuk permainan kompetitif.</p>',
                 'price' => 350000,
                 'image' => json_encode(['lapangan-images/01K5P6FQYV037RKX8GJESZ3SC1.png']),
@@ -74,7 +87,7 @@ class DatabaseSeeder extends Seeder
             // Volleyball Courts
             [
                 'title' => 'Lapangan Volly Outdoor',
-                'category' => 'Volly',
+                'sport_type_id' => $volleyballType->id,
                 'description' => '<p>Lapangan voli outdoor dengan net standar internasional. Permukaan lantai berkualitas tinggi untuk kenyamanan bermain maksimal.</p>',
                 'price' => 150000,
                 'image' => json_encode(['lapangan-images/01K5P6FQYW9YRNQTHEX0PBVPQW.png']),
@@ -83,7 +96,7 @@ class DatabaseSeeder extends Seeder
             // Badminton Courts
             [
                 'title' => 'Lapangan Badminton Premium',
-                'category' => 'Badminton',
+                'sport_type_id' => $badmintonType->id,
                 'description' => '<p>Lapangan badminton indoor dengan lantai kayu dan sistem ventilasi terbaik. Net dan perlengkapan standar BWF untuk pengalaman bermain profesional.</p>',
                 'price' => 100000,
                 'image' => json_encode(['lapangan-images/01K5P4DDNHJ8QF2EQP22H47WGB.jpg']),
@@ -92,7 +105,7 @@ class DatabaseSeeder extends Seeder
             // Tennis Courts
             [
                 'title' => 'Lapangan Tennis Hard Court',
-                'category' => 'Tennis',
+                'sport_type_id' => $tennisType->id,
                 'description' => '<p>Lapangan tenis hard court dengan permukaan akrilik berkualitas tinggi. Dilengkapi net profesional dan pencahayaan untuk sesi malam hari.</p>',
                 'price' => 400000,
                 'image' => json_encode(['lapangan-images/01K5P4DDNMWD6H5H3W69WKP463.jpg']),
@@ -145,9 +158,9 @@ class DatabaseSeeder extends Seeder
         );
 
         // Get lapangan for bookings
-        $lapanganFutsal = Lapangan::where('category', 'Futsal')->first();
-        $lapanganBasket = Lapangan::where('category', 'Basket')->first();
-        $lapanganBadminton = Lapangan::where('category', 'Badminton')->first();
+        $lapanganFutsal = Lapangan::where('sport_type_id', $futsalType->id)->first();
+        $lapanganBasket = Lapangan::where('sport_type_id', $basketballType->id)->first();
+        $lapanganBadminton = Lapangan::where('sport_type_id', $badmintonType->id)->first();
 
         // Create sample bookings with point transactions
         

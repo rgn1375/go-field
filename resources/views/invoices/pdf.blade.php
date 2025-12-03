@@ -408,7 +408,7 @@
                 @if($invoice->payment_method)
                 <div class="info-item"><span class="info-label">Metode:</span> {{ $invoice->payment_method }}</div>
                 @endif
-                <div class="info-item"><span class="info-label">Status:</span> 
+                <div class="info-item"><span class="info-label">Status:</span>
                     <span style="color: {{ $invoice->status === 'paid' ? '#10b981' : '#f59e0b' }}; font-weight: bold;">
                         {{ $invoice->status === 'paid' ? 'LUNAS' : 'PENDING' }}
                     </span>
@@ -444,9 +444,9 @@
             <div style="margin: 15px 0; padding: 15px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 5px;">
                 <div style="font-size: 9pt; color: #1e40af; margin-bottom: 5px;"><strong>📍 Lokasi:</strong></div>
                 <div style="font-size: 10pt; color: #1e3a8a;">{{ $invoice->booking->lapangan->location ?? 'GoField Sports Arena' }}</div>
-                @if($invoice->booking->lapangan->category)
+                @if($invoice->booking->lapangan->sportType)
                 <div style="font-size: 9pt; color: #3b82f6; margin-top: 5px;">
-                    <strong>Kategori:</strong> {{ $invoice->booking->lapangan->category }}
+                    <strong>Kategori:</strong> {{ $invoice->booking->lapangan->sportType->name }}
                 </div>
                 @endif
             </div>

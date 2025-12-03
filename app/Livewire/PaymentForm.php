@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Booking;
+use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,18 +17,20 @@ class PaymentForm extends Component
     public $booking;
     public $showModal = false;
     
-    public $paymentMethod = '';
+    public $paymentMethodId = '';
+    public $paymentMethods = [];
     public $paymentProof;
     public $paymentNotes = '';
     
     protected $rules = [
-        'paymentMethod' => 'required|in:cash,bank_transfer,qris,e_wallet',
+        'paymentMethodId' => 'required|exists:payment_methods,id',
         'paymentProof' => 'nullable|image|max:2048', // 2MB max
         'paymentNotes' => 'nullable|string|max:500',
     ];
     
     protected $messages = [
-        'paymentMethod.required' => 'Metode pembayaran harus dipilih.',
+        'paymentMethodId.required' => 'Metode pembayaran harus dipilih.',
+        'paymentMethodId.exists' => 'Metode pembayaran tidak valid.',
         'paymentProof.image' => 'File harus berupa gambar.',
         'paymentProof.max' => 'Ukuran file maksimal 2MB.',
     ];
@@ -36,11 +39,12 @@ class PaymentForm extends Component
     {
         $this->bookingId = $bookingId;
         $this->loadBooking();
+        $this->loadPaymentMethods();
     }
     
     public function loadBooking()
     {
-        $this->booking = Booking::with('lapangan')->find($this->bookingId);
+        $this->booking = Booking::with(['lapangan', 'paymentMethod'])->find($this->bookingId);
         
         if (!$this->booking) {
             session()->flash('error', 'Booking tidak ditemukan.');
@@ -48,10 +52,16 @@ class PaymentForm extends Component
         }
         
         // Load existing payment data if any
-        if ($this->booking->payment_method) {
-            $this->paymentMethod = $this->booking->payment_method;
+        if ($this->booking->payment_method_id) {
+            $this->paymentMethodId = $this->booking->payment_method_id;
             $this->paymentNotes = $this->booking->payment_notes ?? '';
         }
+    }
+    
+    public function loadPaymentMethods()
+    {
+        // Load active payment methods
+        $this->paymentMethods = PaymentMethod::active()->ordered()->get();
     }
     
     public function openModal()
@@ -77,10 +87,13 @@ class PaymentForm extends Component
         $this->resetValidation();
     }
     
-    public function updatedPaymentMethod($value)
+    public function updatedPaymentMethodId($value)
     {
+        // Get selected payment method
+        $paymentMethod = PaymentMethod::find($value);
+        
         // Clear payment proof if method is cash
-        if ($value === 'cash') {
+        if ($paymentMethod && $paymentMethod->code === 'cash') {
             $this->paymentProof = null;
         }
     }
@@ -90,8 +103,16 @@ class PaymentForm extends Component
         // Validate
         $rules = $this->rules;
         
+        // Get selected payment method
+        $paymentMethod = PaymentMethod::find($this->paymentMethodId);
+        
+        if (!$paymentMethod) {
+            session()->flash('error', 'Metode pembayaran tidak valid.');
+            return;
+        }
+        
         // Payment proof required for non-cash methods
-        if ($this->paymentMethod !== 'cash') {
+        if ($paymentMethod->code !== 'cash') {
             $rules['paymentProof'] = 'required|image|max:2048';
             $this->messages['paymentProof.required'] = 'Bukti pembayaran harus diunggah.';
         }
@@ -106,10 +127,10 @@ class PaymentForm extends Component
             }
             
             // Update booking
-            $this->booking->payment_method = $this->paymentMethod;
+            $this->booking->payment_method_id = $this->paymentMethodId;
             $this->booking->payment_notes = $this->paymentNotes;
             
-            if ($this->paymentMethod === 'cash') {
+            if ($paymentMethod->code === 'cash') {
                 // Cash payment: mark as paid, but still need admin to confirm booking
                 $this->booking->payment_status = 'paid';
                 $this->booking->paid_at = now();
@@ -142,20 +163,16 @@ class PaymentForm extends Component
             return redirect()->route('dashboard');
             
         } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.');
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
     
-    public function getPaymentMethodLabelProperty()
+    public function getSelectedPaymentMethodProperty()
     {
-        $labels = [
-            'cash' => 'Bayar di Tempat',
-            'bank_transfer' => 'Transfer Bank',
-            'qris' => 'QRIS',
-            'e_wallet' => 'E-Wallet (Dana, OVO, GoPay)',
-        ];
-        
-        return $labels[$this->paymentMethod] ?? '-';
+        if ($this->paymentMethodId) {
+            return PaymentMethod::find($this->paymentMethodId);
+        }
+        return null;
     }
     
     public function render()

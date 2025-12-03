@@ -54,7 +54,7 @@
                             'Volly' => 'ai-grid',
                             'Tennis' => 'ai-circle',
                         ];
-                        $categoryIcon = $categoryIcons[$item->category] ?? 'ai-star-fill';
+                        $categoryIcon = $categoryIcons[$item->sportType?->name ?? ''] ?? 'ai-star-fill';
                     @endphp
                     <a href="{{ route('detail', $item->id) }}"
                         class="group bg-white border-2 border-gray-100 rounded-2xl transition-all duration-500 hover:border-primary overflow-hidden hover:shadow-2xl hover:-translate-y-2 animate-fade-in"
@@ -62,8 +62,8 @@
                         
                         <!-- Image with overlay -->
                         <div class="relative overflow-hidden">
-                            <img src="{{ asset('storage/' . $primaryImage) }}" 
-                                 alt="Foto {{ $item->title }}" 
+                            <img src="{{ asset('storage/' . $primaryImage) }}"
+                                 alt="Foto {{ $item->title }}"
                                  class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
                             
                             <!-- Gradient overlay -->
@@ -72,7 +72,7 @@
                             <!-- Category badge on image -->
                             <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-semibold text-primary flex items-center gap-1 shadow-lg">
                                 <i class="{{ $categoryIcon }} text-yellow-400"></i>
-                                {{ $item->category }}
+                                {{ $item->sportType?->name ?? 'Sport' }}
                             </div>
                             
                             <!-- Quick view button -->
@@ -174,8 +174,8 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
                 @foreach(['galeri-1.jpg', 'galeri-2.jpg', 'galeri-3.jpg', 'galeri-4.jpg', 'galeri-5.jpg', 'galeri-6.jpg', 'lapangan-1.png', 'lapangan-2.png'] as $index => $img)
                     <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 animate-fade-in cursor-pointer" style="animation-delay: {{ $index * 0.05 }}s;">
-                        <img src="{{ asset('images/' . $img) }}" 
-                             alt="Galeri {{ $index + 1 }}" 
+                        <img src="{{ asset('images/' . $img) }}"
+                             alt="Galeri {{ $index + 1 }}"
                              class="w-full h-32 md:h-48 object-cover transition-transform duration-700 group-hover:scale-125">
                         
                         <!-- Overlay with zoom icon -->

@@ -55,15 +55,15 @@ class Booking extends Model
     protected $fillable = [
         'booking_code',
         'user_id',
-        'lapangan_id', 
-        'tanggal', 
-        'jam_mulai', 
-        'jam_selesai', 
-        'nama_pemesan', 
+        'lapangan_id',
+        'tanggal',
+        'jam_mulai',
+        'jam_selesai',
+        'nama_pemesan',
         'nomor_telepon',
         'email',
         'harga',
-        'payment_method',
+        'payment_method_id',
         'payment_status',
         'payment_proof',
         'paid_at',
@@ -88,6 +88,9 @@ class Booking extends Model
         'payment_confirmed_at' => 'datetime',
     ];
 
+    /**
+     * Get the lapangan for this booking.
+     */
     public function lapangan()
     {
         return $this->belongsTo(Lapangan::class);
@@ -99,6 +102,22 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the payment method for this booking.
+     */
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
+
+    /**
+     * Get all transactions for this booking.
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     /**

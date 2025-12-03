@@ -124,7 +124,7 @@
                                         <h4 class="font-bold text-xl text-white mb-1">{{ $booking->lapangan->title }}</h4>
                                         <p class="text-sm text-emerald-100 flex items-center gap-1">
                                             <i class="ai-tag"></i>
-                                            {{ $booking->lapangan->category }}
+                                            {{ $booking->lapangan->sportType?->name ?? 'Sport' }}
                                         </p>
                                     </div>
                                     <div>

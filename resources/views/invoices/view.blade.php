@@ -11,14 +11,14 @@
             </a>
             
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('invoice.stream', $invoice->id) }}" 
+                <a href="{{ route('invoice.stream', $invoice->id) }}"
                    target="_blank"
                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-700 rounded-xl hover:bg-emerald-50 transition-all shadow-sm hover:shadow font-semibold">
                     <i class="ai-eye"></i>
                     Preview PDF
                 </a>
                 
-                <a href="{{ route('invoice.download', $invoice->id) }}" 
+                <a href="{{ route('invoice.download', $invoice->id) }}"
                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg font-semibold">
                     <i class="ai-download"></i>
                     Download PDF
@@ -195,7 +195,7 @@
                             </div>
                         </div>
 
-                        @if($invoice->booking->lapangan->category || $invoice->booking->lapangan->location)
+                        @if($invoice->booking->lapangan->sportType || $invoice->booking->lapangan->location)
                         <div class="mt-4 pt-4 border-t border-gray-300 space-y-2">
                             @if($invoice->booking->lapangan->location)
                             <p class="text-sm text-gray-700">
@@ -203,10 +203,10 @@
                                 <strong>Lokasi:</strong> {{ $invoice->booking->lapangan->location }}
                             </p>
                             @endif
-                            @if($invoice->booking->lapangan->category)
+                            @if($invoice->booking->lapangan->sportType)
                             <p class="text-sm text-gray-700">
                                 <i class="ai-tag text-blue-600"></i>
-                                <strong>Kategori:</strong> {{ $invoice->booking->lapangan->category }}
+                                <strong>Kategori:</strong> {{ $invoice->booking->lapangan->sportType->name }}
                             </p>
                             @endif
                         </div>

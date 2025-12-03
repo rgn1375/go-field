@@ -12,7 +12,8 @@ class HomeController extends Controller
     {
         // Use cursor pagination for better performance
         $lapangan = Lapangan::where('status', 1)
-            ->select('id', 'title', 'category', 'price', 'weekday_price', 'weekend_price', 
+            ->with('sportType')
+            ->select('id', 'title', 'sport_type_id', 'price', 'weekday_price', 'weekend_price',
                      'peak_hour_start', 'peak_hour_end', 'peak_hour_multiplier', 'image', 'status')
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc') // Secondary sort for stable pagination
@@ -25,7 +26,7 @@ class HomeController extends Controller
     {
         // Cache individual lapangan for 10 minutes
         $lapangan = Cache::remember("lapangan_detail_{$id}", 600, function () use ($id) {
-            return Lapangan::findOrFail($id);
+            return Lapangan::with('sportType')->findOrFail($id);
         });
         
         return view('detail', compact('lapangan'));

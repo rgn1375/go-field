@@ -6,6 +6,7 @@ use App\Filament\Resources\Lapangans\Pages\CreateLapangan;
 use App\Filament\Resources\Lapangans\Pages\EditLapangan;
 use App\Filament\Resources\Lapangans\Pages\ListLapangans;
 use App\Models\Lapangan;
+use App\Models\SportType;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
@@ -41,14 +42,28 @@ class LapanganResource extends Resource
                     ->maxLength(255)
                     ->columnSpanFull(),
                     
-                Select::make('category')
-                    ->label('Kategori')
-                    ->options([
-                        'Futsal' => 'Futsal',
-                        'Badminton' => 'Badminton',
-                        'Tennis' => 'Tennis',
-                        'Basket' => 'Basket',
-                        'Volly' => 'Volly',
+                Select::make('sport_type_id')
+                    ->label('Jenis Olahraga')
+                    ->relationship('sportType', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('code')
+                            ->label('Kode')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->helperText('Format: lowercase, no spaces (e.g., futsal, basketball)'),
+                        TextInput::make('name')
+                            ->label('Nama')
+                            ->required(),
+                        Textarea::make('description')
+                            ->label('Deskripsi'),
+                        TextInput::make('icon')
+                            ->label('Icon Class')
+                            ->helperText('Contoh: heroicon-o-circle-stack'),
+                        Toggle::make('is_active')
+                            ->label('Aktif')
+                            ->default(true),
                     ])
                     ->required(),
                 
@@ -202,26 +217,12 @@ class LapanganResource extends Resource
                     ->icon('heroicon-o-building-office-2')
                     ->weight('bold'),
                     
-                TextColumn::make('category')
-                    ->label('Kategori')
+                TextColumn::make('sportType.name')
+                    ->label('Jenis Olahraga')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Futsal' => 'success',
-                        'Basket' => 'warning',
-                        'Volly' => 'info',
-                        'Badminton' => 'danger',
-                        'Tennis' => 'primary',
-                        default => 'gray',
-                    })
-                    ->icon(fn (string $state): string => match ($state) {
-                        'Futsal' => 'heroicon-o-circle-stack',
-                        'Basket' => 'heroicon-o-circle-stack',
-                        'Volly' => 'heroicon-o-squares-2x2',
-                        'Badminton' => 'heroicon-o-squares-2x2',
-                        'Tennis' => 'heroicon-o-circle-stack',
-                        default => 'heroicon-o-tag',
-                    })
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->icon('heroicon-o-trophy'),
                     
                 TextColumn::make('price')
                     ->label('Harga per Sesi')

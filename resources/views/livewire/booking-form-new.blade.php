@@ -39,7 +39,7 @@
         <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $lapangan->title }}</h2>
         <div class="flex items-center gap-4 mb-6">
             <span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg font-semibold">
-                {{ $lapangan->category }}
+                {{ $lapangan->sportType?->name ?? 'Sport' }}
             </span>
             <span class="text-2xl font-bold text-emerald-600">
                 @if($lapangan->weekday_price && $lapangan->weekend_price)

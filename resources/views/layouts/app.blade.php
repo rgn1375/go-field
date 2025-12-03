@@ -99,8 +99,8 @@
                     <div class="hidden md:flex items-center gap-4">
                         @auth
                             <!-- Authenticated User Menu -->
-                            <div class="relative" x-data="{ open: false }">
-                                <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                                <button @click="open = !open" type="button" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold text-sm">
                                         {{ substr(Auth::user()->name, 0, 1) }}
                                     </div>
@@ -108,11 +108,20 @@
                                         <div class="text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</div>
                                         <div class="text-xs text-gray-500">{{ number_format(Auth::user()->points_balance) }} Poin</div>
                                     </div>
-                                    <i class="ai-chevron-down text-gray-600 text-sm"></i>
+                                    <svg class="w-4 h-4 text-gray-600 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
                                 </button>
 
-                                <div x-show="open" @click.away="open = false" x-cloak 
-                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
+                                <div x-show="open" 
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                                     style="display: none;">
                                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="ai-dashboard"></i>
                                         <span>Dashboard</span>
@@ -122,7 +131,7 @@
                                         <span>Profil</span>
                                     </a>
                                     <div class="border-t border-gray-200 my-1"></div>
-                                    <form method="POST" action="{{ route('logout') }}">
+                                    <form method="POST" action="{{ route('logout') }}" class="m-0">
                                         @csrf
                                         <button type="submit" class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left">
                                             <i class="ai-sign-out"></i>

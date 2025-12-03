@@ -7,11 +7,13 @@ use App\Filament\Resources\Bookings\Pages\EditBooking;
 use App\Filament\Resources\Bookings\Pages\ListBookings;
 use App\Models\Booking;
 use App\Models\Lapangan;
+use App\Models\PaymentMethod;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -81,13 +83,24 @@ class BookingResource extends Resource
                     ->prefix('Rp')
                     ->required(),
                 
-                Select::make('payment_method')
+                Select::make('payment_method_id')
                     ->label('Metode Pembayaran')
-                    ->options([
-                        'cash' => 'Bayar di Tempat',
-                        'bank_transfer' => 'Transfer Bank',
-                        'qris' => 'QRIS',
-                        'e_wallet' => 'E-Wallet',
+                    ->relationship('paymentMethod', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('code')
+                            ->label('Kode')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('name')
+                            ->label('Nama')
+                            ->required(),
+                        Textarea::make('description')
+                            ->label('Deskripsi'),
+                        Toggle::make('is_active')
+                            ->label('Aktif')
+                            ->default(true),
                     ]),
                 
                 Select::make('payment_status')
@@ -135,10 +148,11 @@ class BookingResource extends Resource
                     ->icon('heroicon-o-building-office-2')
                     ->iconColor('success'),
                 
-                TextColumn::make('lapangan.category')
-                    ->label('Kategori')
+                TextColumn::make('lapangan.sportType.name')
+                    ->label('Jenis Olahraga')
                     ->badge()
-                    ->color('info'),
+                    ->sortable()
+                    ->searchable(),
                 
                 TextColumn::make('tanggal')
                     ->label('Tanggal')
@@ -201,15 +215,12 @@ class BookingResource extends Resource
                         default => 'heroicon-o-question-mark-circle',
                     }),
                 
-                TextColumn::make('payment_method')
+                TextColumn::make('paymentMethod.name')
                     ->label('Metode Pembayaran')
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'cash' => '💵 Bayar di Tempat',
-                        'bank_transfer' => '🏦 Transfer Bank',
-                        'qris' => '📱 QRIS',
-                        'e_wallet' => '💳 E-Wallet',
-                        default => '-',
-                    })
+                    ->badge()
+                    ->color('success')
+                    ->icon('heroicon-o-credit-card')
+                    ->default('-')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('status')
@@ -263,14 +274,34 @@ class BookingResource extends Resource
                     ->modalWidth('2xl')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
-                    ->modalContent(fn (Booking $record) => view('filament.modals.payment-proof', [
-                        'record' => $record,
-                    ]))
-                    ->visible(fn (Booking $record): bool => 
-                        $record->payment_method !== null && 
-                        $record->payment_method !== 'cash' &&
-                        $record->payment_proof !== null
-                    ),
+                    ->modalContent(function (Booking $record) {
+                        // Eager load relationship untuk modal
+                        $record->load('paymentMethod');
+                        return view('filament.modals.payment-proof', [
+                            'record' => $record,
+                        ]);
+                    })
+                    ->visible(function (Booking $record): bool {
+                        if ($record->payment_proof === null) {
+                            return false;
+                        }
+                        
+                        if ($record->payment_method_id === null) {
+                            return false;
+                        }
+                        
+                        // Load relationship jika belum
+                        if (!$record->relationLoaded('paymentMethod')) {
+                            $record->load('paymentMethod');
+                        }
+                        
+                        // Hide untuk cash payment
+                        if ($record->paymentMethod && $record->paymentMethod->code === 'cash') {
+                            return false;
+                        }
+                        
+                        return true;
+                    }),
                 
                 // Approve Payment
                 Action::make('approve_payment')
@@ -306,7 +337,7 @@ class BookingResource extends Resource
                         }
                     })
                     ->successNotificationTitle('Pembayaran berhasil dikonfirmasi dan poin telah diberikan')
-                    ->visible(fn (Booking $record): bool => 
+                    ->visible(fn (Booking $record): bool =>
                         $record->payment_status === 'waiting_confirmation'
                     ),
                 
@@ -333,7 +364,7 @@ class BookingResource extends Resource
                         ]);
                     })
                     ->successNotificationTitle('Pembayaran ditolak')
-                    ->visible(fn (Booking $record): bool => 
+                    ->visible(fn (Booking $record): bool =>
                         $record->payment_status === 'waiting_confirmation'
                     ),
                 
