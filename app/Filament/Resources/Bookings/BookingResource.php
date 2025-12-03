@@ -349,6 +349,16 @@ class BookingResource extends Resource
                                 'payment_confirmed_by' => auth()->id(),
                                 'status' => 'confirmed',
                             ]);
+                            
+                            // Update transaction status jika ada
+                            $record->transactions()
+                                ->where('status', 'waiting_confirmation')
+                                ->update([
+                                    'status' => 'paid',
+                                    'confirmed_at' => now(),
+                                    'confirmed_by' => auth()->id(),
+                                ]);
+                            
                             return;
                         }
                         
@@ -359,6 +369,15 @@ class BookingResource extends Resource
                             'payment_confirmed_by' => auth()->id(),
                             'status' => 'confirmed',
                         ]);
+                        
+                        // Update transaction status to paid
+                        $record->transactions()
+                            ->whereIn('status', ['waiting_confirmation', 'pending'])
+                            ->update([
+                                'status' => 'paid',
+                                'confirmed_at' => now(),
+                                'confirmed_by' => auth()->id(),
+                            ]);
                         
                         // Kasih poin untuk semua metode pembayaran (termasuk cash)
                         // Hitung poin berdasarkan harga (1% dari harga)
@@ -412,6 +431,14 @@ class BookingResource extends Resource
                             'payment_status' => 'unpaid',
                             'payment_notes' => 'DITOLAK: ' . $data['reject_reason'],
                         ]);
+                        
+                        // Update transaction status to failed
+                        $record->transactions()
+                            ->where('status', 'waiting_confirmation')
+                            ->update([
+                                'status' => 'failed',
+                                'admin_notes' => 'DITOLAK: ' . $data['reject_reason'],
+                            ]);
                     })
                     ->successNotificationTitle('Pembayaran ditolak')
                     ->visible(fn (?Booking $record): bool =>

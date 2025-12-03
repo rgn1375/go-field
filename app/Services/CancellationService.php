@@ -12,12 +12,12 @@ class CancellationService
 {
     /**
      * Calculate cancellation fee based on booking time
-     * 
+     *
      * Rules:
      * - More than 24 hours before: 100% refund
      * - Less than 24 hours before: 50% refund
      * - After booking time: No refund
-     * 
+     *
      * @param Booking $booking
      * @return array ['refund_percentage' => int, 'refund_amount' => int, 'can_cancel' => bool, 'reason' => string]
      */
@@ -55,7 +55,7 @@ class CancellationService
             'refund_percentage' => $refundPercentage,
             'refund_amount' => (int) $refundAmount,
             'hours_until_booking' => $hoursUntilBooking,
-            'reason' => $refundPercentage === 100 
+            'reason' => $refundPercentage === 100
                 ? 'Pembatalan lebih dari 24 jam sebelum booking. Refund 100%.'
                 : 'Pembatalan kurang dari 24 jam sebelum booking. Refund 50%.',
         ];
@@ -63,7 +63,7 @@ class CancellationService
     
     /**
      * Process booking cancellation with refund
-     * 
+     *
      * @param Booking $booking
      * @param string|null $cancellationReason
      * @param int|null $userId User who initiated cancellation (null for admin)
@@ -165,7 +165,7 @@ class CancellationService
     
     /**
      * Process refund: return points if redeemed, add refund to balance
-     * 
+     *
      * @param Booking $booking
      * @param array $refundInfo
      * @return void
@@ -217,7 +217,7 @@ class CancellationService
     
     /**
      * Check if booking can be cancelled by user
-     * 
+     *
      * @param Booking $booking
      * @param int $userId
      * @return array ['can_cancel' => bool, 'reason' => string]

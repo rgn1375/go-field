@@ -8,11 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Tambah composite index untuk cursor-based pagination pada:
      * - Riwayat booking (past tab)
      * - Booking yang dibatalkan (cancelled tab)
-     * 
+     *
      * Index ini mengoptimalkan query dengan ORDER BY tanggal DESC, jam_mulai DESC, id DESC
      */
     public function up(): void

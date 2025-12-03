@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Lapangan;
 use App\Models\Booking;
 use App\Models\UserPoint;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 

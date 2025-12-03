@@ -6,8 +6,10 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Booking;
 use App\Models\PaymentMethod;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PaymentForm extends Component
 {
@@ -120,6 +122,8 @@ class PaymentForm extends Component
         $this->validate($rules);
         
         try {
+            DB::beginTransaction();
+            
             // Upload payment proof if exists
             $proofPath = null;
             if ($this->paymentProof) {
@@ -130,15 +134,27 @@ class PaymentForm extends Component
             $this->booking->payment_method_id = $this->paymentMethodId;
             $this->booking->payment_notes = $this->paymentNotes;
             
+            // Prepare transaction data
+            $transactionData = [
+                'booking_id' => $this->booking->id,
+                'payment_method_id' => $this->paymentMethodId,
+                'amount' => $this->booking->harga,
+                'total_amount' => $this->booking->harga,
+                'notes' => $this->paymentNotes,
+            ];
+            
             if ($paymentMethod->code === 'cash') {
                 // Cash payment: tetap unpaid sampai customer bayar di tempat
                 $this->booking->payment_status = 'unpaid';
-                // Status tetap pending, tunggu customer datang & bayar, lalu admin confirm
+                $transactionData['status'] = 'pending';
+                $transactionData['notes'] = 'Pembayaran cash - Menunggu pembayaran di tempat';
                 $message = 'Metode pembayaran berhasil disimpan. Silakan bayar di tempat saat kedatangan. Poin akan diberikan setelah pembayaran dikonfirmasi admin.';
             } else {
                 // Other methods: waiting for admin confirmation
                 $this->booking->payment_status = 'waiting_confirmation';
                 $this->booking->paid_at = now();
+                $transactionData['status'] = 'waiting_confirmation';
+                $transactionData['paid_at'] = now();
                 
                 if ($proofPath) {
                     // Delete old proof if exists
@@ -146,13 +162,18 @@ class PaymentForm extends Component
                         Storage::disk('public')->delete($this->booking->payment_proof);
                     }
                     $this->booking->payment_proof = $proofPath;
+                    $transactionData['payment_proof'] = $proofPath;
                 }
                 
-                // Status tetap pending sampai admin approve payment
                 $message = 'Bukti pembayaran berhasil diunggah. Menunggu konfirmasi admin.';
             }
             
             $this->booking->save();
+            
+            // Create transaction record for payment history
+            Transaction::create($transactionData);
+            
+            DB::commit();
             
             session()->flash('success', $message);
             $this->closeModal();
@@ -161,6 +182,7 @@ class PaymentForm extends Component
             return redirect()->route('dashboard');
             
         } catch (\Exception $e) {
+            DB::rollBack();
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
