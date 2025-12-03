@@ -131,12 +131,10 @@ class PaymentForm extends Component
             $this->booking->payment_notes = $this->paymentNotes;
             
             if ($paymentMethod->code === 'cash') {
-                // Cash payment: mark as paid, but still need admin to confirm booking
-                $this->booking->payment_status = 'paid';
-                $this->booking->paid_at = now();
-                $this->booking->payment_confirmed_at = now();
-                // Status tetap pending, tunggu admin confirm booking
-                $message = 'Metode pembayaran berhasil disimpan. Silakan bayar di tempat saat kedatangan.';
+                // Cash payment: tetap unpaid sampai customer bayar di tempat
+                $this->booking->payment_status = 'unpaid';
+                // Status tetap pending, tunggu customer datang & bayar, lalu admin confirm
+                $message = 'Metode pembayaran berhasil disimpan. Silakan bayar di tempat saat kedatangan. Poin akan diberikan setelah pembayaran dikonfirmasi admin.';
             } else {
                 // Other methods: waiting for admin confirmation
                 $this->booking->payment_status = 'waiting_confirmation';

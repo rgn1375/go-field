@@ -101,10 +101,29 @@ class CancellationService
             $booking->cancelled_by = $userId;
             $booking->refund_amount = $refundInfo['refund_amount'];
             $booking->refund_percentage = $refundInfo['refund_percentage'];
-            $booking->save();
             
-            // Process refund for authenticated users
-            if ($booking->user_id) {
+            // Determine refund method
+            if ($booking->user_id && $refundInfo['refund_amount'] > 0) {
+                // Only refund if payment was already made (paid status)
+                if ($booking->payment_status === 'paid') {
+                    $booking->refund_method = 'points';
+                    $booking->payment_status = 'refunded';
+                    $booking->refund_notes = 'Otomatis dikembalikan dalam bentuk poin. ' .
+                        'Jika ingin refund transfer bank, hubungi admin.';
+                } else {
+                    // Not paid yet (unpaid or waiting_confirmation)
+                    $booking->refund_method = 'none';
+                    $booking->refund_notes = 'Booking dibatalkan sebelum pembayaran dikonfirmasi. Tidak ada refund.';
+                    // Reset refund amount karena belum bayar
+                    $booking->refund_amount = 0;
+                    $booking->refund_percentage = 0;
+                }
+            }            $booking->save();
+            
+            // Process refund ONLY if payment was made (refunded status)
+            if ($booking->user_id &&
+                $booking->refund_amount > 0 &&
+                $booking->payment_status === 'refunded') {
                 $this->processRefund($booking, $refundInfo);
                 // Mark refund as processed
                 $booking->refund_processed_at = now();
@@ -174,25 +193,9 @@ class CancellationService
             ]);
         }
         
-        // 2. Deduct earned points (if any and not used yet)
-        if ($booking->points_earned > 0) {
-            // Only deduct if user still has the points
-            if ($user->points_balance >= $booking->points_earned) {
-                $user->points_balance -= $booking->points_earned;
-                $user->save();
-                
-                \App\Models\UserPoint::create([
-                    'user_id' => $user->id,
-                    'booking_id' => $booking->id,
-                    'points' => -$booking->points_earned,
-                    'type' => 'adjusted',
-                    'description' => 'Points removed due to cancelled booking #' . $booking->id,
-                    'balance_after' => $user->points_balance,
-                ]);
-            }
-        }
-        
-        // 3. Add refund amount as points (Rp 1,000 = 1 point)
+        // 2. Add refund amount as points (Rp 1,000 = 1 point)
+        // NOTE: Tidak perlu cabut earned points karena refund sudah menggantikan earned
+        // Earned = 1% dari harga, Refund = 50%-100% dari harga
         if ($refundInfo['refund_amount'] > 0) {
             $refundPoints = floor($refundInfo['refund_amount'] / 1000);
             

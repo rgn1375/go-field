@@ -233,6 +233,27 @@ class BookingResource extends Resource
                         'completed' => 'info',
                     }),
                 
+                TextColumn::make('refund_amount')
+                    ->label('Refund')
+                    ->money('IDR')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('warning')
+                    ->badge()
+                    ->default('-')
+                    ->formatStateUsing(function (Booking $record): string {
+                        if ($record->refund_amount <= 0) {
+                            return '-';
+                        }
+                        $method = match($record->refund_method) {
+                            'points' => '(Poin)',
+                            'bank_transfer' => '(Transfer)',
+                            default => '',
+                        };
+                        return 'Rp ' . number_format($record->refund_amount) . ' ' . $method;
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->visible(fn (Booking $record): bool => $record->status === 'cancelled'),
+                
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y, H:i')
@@ -312,13 +333,32 @@ class BookingResource extends Resource
                     ->modalHeading('Terima Pembayaran')
                     ->modalDescription('Apakah Anda yakin pembayaran ini valid?')
                     ->action(function (Booking $record): void {
+                        // Cek idempotency: apakah poin sudah diberikan sebelumnya
+                        $existingPoint = \App\Models\UserPoint::where('booking_id', $record->id)
+                            ->where('type', 'earned')
+                            ->first();
+                        
+                        if ($existingPoint) {
+                            // Poin sudah pernah diberikan, hanya update status payment
+                            $record->update([
+                                'payment_status' => 'paid',
+                                'paid_at' => now(),
+                                'payment_confirmed_at' => now(),
+                                'payment_confirmed_by' => auth()->id(),
+                                'status' => 'confirmed',
+                            ]);
+                            return;
+                        }
+                        
                         $record->update([
                             'payment_status' => 'paid',
+                            'paid_at' => now(),
                             'payment_confirmed_at' => now(),
                             'payment_confirmed_by' => auth()->id(),
-                            'status' => 'confirmed', // Status jadi confirmed setelah payment approved
+                            'status' => 'confirmed',
                         ]);
                         
+                        // Kasih poin untuk semua metode pembayaran (termasuk cash)
                         if ($record->user_id && $record->points_earned > 0) {
                             $user = \App\Models\User::find($record->user_id);
                             if ($user) {
@@ -338,7 +378,7 @@ class BookingResource extends Resource
                     })
                     ->successNotificationTitle('Pembayaran berhasil dikonfirmasi dan poin telah diberikan')
                     ->visible(fn (Booking $record): bool =>
-                        $record->payment_status === 'waiting_confirmation'
+                        in_array($record->payment_status, ['waiting_confirmation', 'unpaid'])
                     ),
                 
                 // Reject Payment
@@ -408,6 +448,65 @@ class BookingResource extends Resource
                     ->action(fn (Booking $record) => $record->update(['status' => 'confirmed']))
                     ->successNotificationTitle('Pemesanan berhasil dikonfirmasi')
                     ->visible(fn (Booking $record): bool => $record->status === 'pending'),
+                
+                // Process Manual Refund (Bank Transfer)
+                Action::make('process_refund')
+                    ->label('Proses Refund')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Proses Refund Manual')
+                    ->modalDescription(fn (Booking $record) =>
+                        'Customer meminta refund via transfer bank sebesar Rp ' . number_format($record->refund_amount) .
+                        '. Pastikan transfer sudah dilakukan sebelum konfirmasi.'
+                    )
+                    ->form([
+                        Textarea::make('refund_notes')
+                            ->label('Catatan Refund')
+                            ->placeholder('Contoh: Sudah transfer ke rekening BCA 1234567890 a.n. John Doe pada 03 Des 2025')
+                            ->required()
+                            ->rows(3)
+                            ->maxLength(500),
+                    ])
+                    ->action(function (Booking $record, array $data): void {
+                        // Cabut poin refund yang sudah diberikan otomatis
+                        if ($record->user_id && $record->refund_method === 'points') {
+                            $user = \App\Models\User::find($record->user_id);
+                            if ($user) {
+                                // Calculate refund points
+                                $refundPoints = floor($record->refund_amount / 1000);
+                                
+                                // Deduct refund points
+                                if ($refundPoints > 0 && $user->points_balance >= $refundPoints) {
+                                    $user->points_balance -= $refundPoints;
+                                    $user->save();
+                                    
+                                    \App\Models\UserPoint::create([
+                                        'user_id' => $user->id,
+                                        'booking_id' => $record->id,
+                                        'points' => -$refundPoints,
+                                        'type' => 'adjusted',
+                                        'description' => 'Refund poin dibatalkan karena sudah di-transfer ke rekening. ' . $data['refund_notes'],
+                                        'balance_after' => $user->points_balance,
+                                    ]);
+                                }
+                            }
+                        }
+                        
+                        $record->update([
+                            'refund_method' => 'bank_transfer',
+                            'refund_notes' => $data['refund_notes'],
+                            'refund_processed_at' => now(),
+                            'payment_status' => 'refunded',
+                        ]);
+                    })
+                    ->successNotificationTitle('Refund berhasil diproses dan poin refund telah dicabut')
+                    ->visible(function (Booking $record): bool {
+                        return $record->status === 'cancelled' &&
+                               $record->refund_amount > 0 &&
+                               $record->refund_method === 'points' &&
+                               $record->refund_processed_at === null;
+                    }),
                 
                 DeleteAction::make()
                     ->label('Hapus'),
