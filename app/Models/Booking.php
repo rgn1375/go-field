@@ -79,6 +79,8 @@ class Booking extends Model
         'refund_amount',
         'refund_percentage',
         'refund_processed_at',
+        'refund_method',
+        'refund_notes',
     ];
 
     protected $casts = [

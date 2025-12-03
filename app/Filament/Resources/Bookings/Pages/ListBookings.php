@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Bookings\Pages;
 use App\Filament\Resources\Bookings\BookingResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListBookings extends ListRecords
 {
@@ -15,5 +16,11 @@ class ListBookings extends ListRecords
         return [
             CreateAction::make(),
         ];
+    }
+
+    protected function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()
+            ->with(['lapangan.sportType', 'paymentMethod', 'user']);
     }
 }

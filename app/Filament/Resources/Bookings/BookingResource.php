@@ -359,20 +359,28 @@ class BookingResource extends Resource
                         ]);
                         
                         // Kasih poin untuk semua metode pembayaran (termasuk cash)
-                        if ($record->user_id && $record->points_earned > 0) {
-                            $user = \App\Models\User::find($record->user_id);
-                            if ($user) {
-                                $user->points_balance += $record->points_earned;
-                                $user->save();
-                                
-                                \App\Models\UserPoint::create([
-                                    'user_id' => $user->id,
-                                    'booking_id' => $record->id,
-                                    'points' => $record->points_earned,
-                                    'type' => 'earned',
-                                    'description' => 'Points earned from booking #' . $record->id,
-                                    'balance_after' => $user->points_balance,
-                                ]);
+                        // Hitung poin berdasarkan harga (1% dari harga)
+                        if ($record->user_id && $record->harga > 0) {
+                            $pointsToEarn = floor($record->harga * 0.01);
+                            
+                            if ($pointsToEarn > 0) {
+                                $user = \App\Models\User::find($record->user_id);
+                                if ($user) {
+                                    $user->points_balance += $pointsToEarn;
+                                    $user->save();
+                                    
+                                    \App\Models\UserPoint::create([
+                                        'user_id' => $user->id,
+                                        'booking_id' => $record->id,
+                                        'points' => $pointsToEarn,
+                                        'type' => 'earned',
+                                        'description' => 'Poin dari booking #' . $record->booking_code,
+                                        'balance_after' => $user->points_balance,
+                                    ]);
+                                    
+                                    // Update points_earned di booking untuk tracking
+                                    $record->update(['points_earned' => $pointsToEarn]);
+                                }
                             }
                         }
                     })
