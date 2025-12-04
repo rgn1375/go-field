@@ -21,18 +21,15 @@ build:
 # Deployment Commands (run after build)
 deploy:
   - php artisan migrate --force
-  - php artisan queue:restart
+  - php artisan config:clear
   - php artisan cache:clear
+  - php artisan view:clear
+  - php artisan queue:restart
 
-# Persistent Storage Options:
-# Option 1: Local Persistent Storage (Simple, Free)
-# Uncomment jika pakai local storage:
-# storage:
-#   - storage/app/public
+# Persistent Storage (IMPORTANT: Files won't be deleted on redeploy)
+storage:
+  - storage/app/public
 
-# Option 2: Laravel Cloud Bucket (Recommended, Built-in S3)
-# Setup via Laravel Cloud Dashboard → Bucket
-# Bucket akan otomatis ter-mount, no additional config needed here
 
 # Cron Jobs (Laravel Scheduler)
 cron:
@@ -52,13 +49,3 @@ queues:
 health:
   path: /
   timeout: 10
-
-# Environment Variables (set in Laravel Cloud dashboard)
-# Required:
-# - APP_KEY (generate with: php artisan key:generate --show)
-# - APP_URL (your production URL)
-# - DB_CONNECTION=mysql
-# - DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
-# - MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
-# - FONNTE_API_KEY (for WhatsApp notifications)
-# - QUEUE_CONNECTION=database
