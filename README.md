@@ -98,77 +98,6 @@ php artisan queue:listen   # Queue worker for notifications
 php artisan pail           # Real-time logs
 ```
 
----
-
-## 🔐 Default Accounts
-
-### Admin Access
-```
-URL: http://localhost:8000/admin
-Email: admin@admin.com
-Password: admin123
-```
-
-### Test User Accounts
-| Email | Password | Points | Bookings | Use Case |
-|-------|----------|--------|----------|----------|
-| user@test.com | password | 0 | 0 | New user testing |
-| regular@test.com | password | 500 | 3 | Active customer |
-| vip@test.com | password | 2000 | 4 | Loyal customer |
-
----
-
-## 📁 Project Structure
-
-```
-BookingLapang/
-├── app/
-│   ├── Filament/
-│   │   └── Resources/
-│   │       ├── Bookings/           # Booking management
-│   │       ├── Lapangans/          # Facility management
-│   │       ├── Settings/           # System settings
-│   │       └── Users/              # User management + RelationManagers
-│   ├── Http/
-│   │   └── Controllers/
-│   │       ├── HomeController.php  # Public pages
-│   │       └── DashboardController.php # User dashboard
-│   ├── Livewire/
-│   │   └── BookingForm.php         # Interactive booking
-│   ├── Models/
-│   │   ├── User.php
-│   │   ├── Booking.php
-│   │   ├── Lapangan.php
-│   │   ├── UserPoint.php
-│   │   └── Setting.php
-│   ├── Notifications/              # Email + WhatsApp notifications
-│   ├── Channels/
-│   │   └── WhatsAppChannel.php     # Custom Fonnte integration
-│   └── Services/
-│       └── PointService.php        # Point management logic
-├── database/
-│   ├── migrations/                 # Database schema
-│   └── seeders/
-│       └── DatabaseSeeder.php      # Test data
-├── resources/
-│   ├── views/
-│   │   ├── layouts/
-│   │   │   └── app.blade.php       # Master layout
-│   │   ├── home.blade.php          # Landing page
-│   │   ├── detail.blade.php        # Facility detail
-│   │   ├── dashboard/
-│   │   │   └── index.blade.php     # User dashboard
-│   │   └── profile/
-│   │       └── edit.blade.php      # Profile management
-│   └── css/
-│       └── app.css                 # Custom styles
-└── routes/
-    ├── web.php                     # Public routes
-    └── console.php                 # Scheduled tasks
-```
-
----
-
 ## 🎨 Tech Stack
 
 ### Backend
@@ -183,11 +112,6 @@ BookingLapang/
 - **Alpine.js**: Minimal JavaScript framework
 - **Akar Icons**: Icon library
 - **Google Fonts (Inter)**: Typography
-
-### Integrations
-- **Fonnte**: WhatsApp notifications
-- **SMTP**: Email notifications
-- **Queue System**: Async job processing
 
 ---
 
@@ -330,16 +254,16 @@ Laravel Cloud provides one-click deployment with auto-scaling, managed database,
 <summary>Click to expand manual deployment guide</summary>
 
 #### Production Checklist
-- [ ] Set `APP_ENV=production` in `.env`
-- [ ] Set `APP_DEBUG=false`
-- [ ] Run `php artisan config:cache`
-- [ ] Run `php artisan route:cache`
-- [ ] Run `php artisan view:cache`
-- [ ] Run `npm run build`
-- [ ] Set up queue worker (Supervisor recommended)
-- [ ] Configure cron for scheduler
-- [ ] Set up database backups
-- [ ] Configure proper SMTP/WhatsApp credentials
+- Set `APP_ENV=production` in `.env`
+- Set `APP_DEBUG=false`
+- Run `php artisan config:cache`
+- Run `php artisan route:cache`
+- Run `php artisan view:cache`
+- Run `npm run build`
+- Set up queue worker (Supervisor recommended)
+- Configure cron for scheduler
+- Set up database backups
+- Configure proper SMTP/WhatsApp credentials
 
 #### Environment Variables
 ```env
@@ -386,17 +310,6 @@ This project is open-sourced software licensed under the [MIT license](https://o
 - **Filament**: Beautiful admin panel framework
 - **Livewire**: Magical frontend framework
 - **Tailwind CSS**: Utility-first CSS framework
-- **Fonnte**: WhatsApp API service
-
----
-
-## 📞 Support
-
-For issues and questions:
-- 📧 Email: support@gofield.com
-- 📖 Documentation: See `TESTING_GUIDE.md`
-- 🐛 Issues: GitHub Issues
-- 💬 WhatsApp: +62 812 3456 789
 
 ---
 
