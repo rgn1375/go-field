@@ -80,8 +80,8 @@ class BookingObserver
         try {
             // Calculate amounts
             $subtotal = $booking->harga ?? 0;
-            $discount = $booking->points_redeemed > 0 
-                ? ($booking->points_redeemed / 100) 
+            $discount = $booking->points_redeemed > 0
+                ? ($booking->points_redeemed / 100)
                 : 0;
             $total = $subtotal - $discount;
 

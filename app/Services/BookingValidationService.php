@@ -7,37 +7,12 @@ use App\Models\Lapangan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-/**
- * BookingValidationService
- * 
- * Centralized validation logic for booking operations.
- * Ensures consistency across all booking entry points.
- * 
- * @version 1.0.0
- * @author Senior Software Engineer
- */
 class BookingValidationService
 {
-    /**
-     * Minimum minutes before booking start time
-     */
     const MINIMUM_BOOKING_BUFFER_MINUTES = 30;
     
-    /**
-     * Maximum days in advance for booking
-     */
     const MAXIMUM_BOOKING_DAYS_ADVANCE = 30;
     
-    /**
-     * Validate booking request comprehensively
-     * 
-     * @param Lapangan $lapangan
-     * @param string $tanggal Format: Y-m-d
-     * @param string $jamMulai Format: H:i
-     * @param string $jamSelesai Format: H:i
-     * @param int|null $excludeBookingId For edit operations
-     * @return array ['valid' => bool, 'error' => string|null, 'details' => array]
-     */
     public function validateBookingRequest(
         Lapangan $lapangan,
         string $tanggal,
@@ -232,7 +207,7 @@ class BookingValidationService
     {
         if (!$lapangan->isOperationalOn($tanggal)) {
             $maintenanceInfo = $lapangan->getMaintenanceInfo();
-            $error = $maintenanceInfo 
+            $error = $maintenanceInfo
                 ? 'Lapangan sedang maintenance: ' . $maintenanceInfo['reason']
                 : 'Lapangan tidak beroperasi pada tanggal ini.';
             
@@ -281,16 +256,6 @@ class BookingValidationService
         return ['valid' => true];
     }
     
-    /**
-     * Validate no overlapping bookings
-     * 
-     * CRITICAL: This checks for ALL overlap scenarios:
-     * 1. Exact match (same start and end)
-     * 2. New booking starts during existing booking
-     * 3. New booking ends during existing booking
-     * 4. New booking completely contains existing booking
-     * 5. Existing booking completely contains new booking
-     */
     private function validateNoOverlap(
         int $lapanganId,
         string $tanggal,
