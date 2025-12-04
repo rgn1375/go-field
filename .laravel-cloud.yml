@@ -11,7 +11,8 @@ php: 8.3
 build:
   - composer install --no-dev --optimize-autoloader
   - npm ci && npm run build
-  - mkdir -p storage/app/public
+  - mkdir -p storage/app/public/lapangan-images
+  - mkdir -p storage/app/public/payment-proofs
   - php artisan config:cache
   - php artisan route:cache
   - php artisan view:cache
@@ -22,6 +23,16 @@ deploy:
   - php artisan migrate --force
   - php artisan queue:restart
   - php artisan cache:clear
+
+# Persistent Storage Options:
+# Option 1: Local Persistent Storage (Simple, Free)
+# Uncomment jika pakai local storage:
+# storage:
+#   - storage/app/public
+
+# Option 2: Laravel Cloud Bucket (Recommended, Built-in S3)
+# Setup via Laravel Cloud Dashboard → Bucket
+# Bucket akan otomatis ter-mount, no additional config needed here
 
 # Cron Jobs (Laravel Scheduler)
 cron:
