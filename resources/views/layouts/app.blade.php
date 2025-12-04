@@ -132,7 +132,7 @@
                                         <span>Profil</span>
                                     </a>
                                     <div class="border-t border-gray-200 my-1"></div>
-                                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    <form id="logout-form-desktop" method="POST" action="{{ route('logout') }}" class="m-0">
                                         @csrf
                                         <button type="submit" class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left">
                                             <i class="ai-sign-out"></i>
@@ -204,7 +204,7 @@
                         
                         <div class="border-t border-gray-200 my-2"></div>
                         
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form id="logout-form-mobile" method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 transition-colors text-red-600 w-full text-left">
                                 <i class="ai-sign-out text-lg"></i>
@@ -329,6 +329,45 @@
                     setTimeout(() => alert.remove(), 500);
                 });
             }, 5000);
+        });
+
+        // Handle logout forms explicitly
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutForms = ['logout-form-desktop', 'logout-form-mobile'];
+            
+            logoutForms.forEach(formId => {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Debug: Log form submission
+                        console.log('Logout form submitted:', formId);
+                        
+                        // Submit form via fetch for better control
+                        const formData = new FormData(form);
+                        
+                        fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            console.log('Logout response:', response.status);
+                            // Force redirect to homepage
+                            window.location.href = '/';
+                        })
+                        .catch(error => {
+                            console.error('Logout error:', error);
+                            // Even if error, try to redirect
+                            window.location.href = '/';
+                        });
+                    });
+                }
+            });
         });
     </script>
 </body>
