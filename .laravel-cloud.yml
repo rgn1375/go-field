@@ -13,6 +13,7 @@ build:
   - npm ci && npm run build
   - mkdir -p storage/app/public/lapangan-images
   - mkdir -p storage/app/public/payment-proofs
+  - php artisan storage:link --force
   - php artisan config:cache
   - php artisan route:cache
   - php artisan view:cache
@@ -21,11 +22,11 @@ build:
 # Deployment Commands (run after build)
 deploy:
   - php artisan migrate --force
+  - php artisan storage:link --force
   - php artisan config:clear
   - php artisan cache:clear
   - php artisan view:clear
   - php artisan queue:restart
-  - php artisan storage:link
 
 # Persistent Storage (IMPORTANT: Files won't be deleted on redeploy)
 storage:
