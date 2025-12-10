@@ -25,6 +25,7 @@ deploy:
   - php artisan cache:clear
   - php artisan view:clear
   - php artisan queue:restart
+  - php artisan storage:link
 
 # Persistent Storage (IMPORTANT: Files won't be deleted on redeploy)
 storage:
