@@ -50,7 +50,7 @@
                                         Anda akan menerima: <span class="text-lg">Rp {{ number_format($refundInfo['refund_amount'], 0, ',', '.') }}</span>
                                     </p>
                                     <p class="text-xs {{ $refundInfo['refund_percentage'] === 100 ? 'text-green-600' : 'text-yellow-600' }} mt-1">
-                                        Refund akan ditambahkan ke poin Anda ({{ number_format(floor($refundInfo['refund_amount'] / 1000)) }} poin)
+                                        Refund akan diproses secara manual oleh admin
                                     </p>
                                 </div>
                             </div>

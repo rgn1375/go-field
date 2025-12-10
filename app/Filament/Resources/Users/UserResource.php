@@ -45,7 +45,6 @@ class UserResource extends Resource
     {
         return [
             RelationManagers\BookingsRelationManager::class,
-            RelationManagers\PointTransactionsRelationManager::class,
         ];
     }
 

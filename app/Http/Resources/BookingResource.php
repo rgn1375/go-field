@@ -48,8 +48,6 @@ class BookingResource extends JsonResource
             'cancellation_type' => $this->cancellation_type,
             'refund_amount' => $this->refund_amount ? (float) $this->refund_amount : null,
             'refund_processed_at' => $this->refund_processed_at?->toISOString(),
-            'points_earned' => $this->points_earned,
-            'points_redeemed' => $this->points_redeemed,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

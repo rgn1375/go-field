@@ -6,7 +6,7 @@
             Dashboard Saya
         </h1>
         <p class="text-white/95 text-lg mt-2 animate-fade-in" style="animation-delay: 0.1s;">
-            Kelola booking dan poin reward Anda
+            Kelola booking Anda
         </p>
     </div>
 @endsection
@@ -44,13 +44,13 @@
                 </div>
             @endif
 
-            <!-- Points Balance Card -->
+            <!-- Welcome Card -->
             <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl shadow-lg p-8 mb-8 text-white animate-fade-in">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-emerald-100 text-sm mb-2">Poin Saya</p>
-                        <h3 class="text-4xl font-bold mb-2">{{ number_format($user->points_balance) }}</h3>
-                        <p class="text-emerald-100 text-sm">Setara dengan Rp {{ number_format(($user->points_balance / 100) * 1000, 0, ',', '.') }}</p>
+                        <p class="text-emerald-100 text-sm mb-2">Selamat Datang</p>
+                        <h3 class="text-4xl font-bold mb-2">{{ $user->name }}</h3>
+                        <p class="text-emerald-100 text-sm">{{ $user->email }}</p>
                     </div>
                 </div>
                 <div class="mt-6 flex flex-wrap items-center gap-3">
@@ -130,6 +130,7 @@
                                     <div>
                                         @php
                                             // Check booking & payment status
+                                            $isPendingCancellation = $booking->status === 'pending_cancellation';
                                             $isCancelled = $booking->status === 'cancelled';
                                             $isWaitingRefund = $isCancelled && $booking->cancelled_at && !$booking->refund_processed_at;
                                             $isPending = $booking->status === 'pending';
@@ -139,6 +140,7 @@
                                         <span class="inline-block px-4 py-2 rounded-lg text-sm font-semibold shadow
                                             {{ $isPending ? 'bg-yellow-500 text-white' : '' }}
                                             {{ $isConfirmed ? 'bg-green-500 text-white' : '' }}
+                                            {{ $isPendingCancellation ? 'bg-orange-500 text-white' : '' }}
                                             {{ $isCancelled && $isWaitingRefund ? 'bg-orange-500 text-white' : '' }}
                                             {{ $isCancelled && !$isWaitingRefund ? 'bg-red-500 text-white' : '' }}
                                             {{ $booking->status === 'completed' ? 'bg-emerald-500 text-white' : '' }}">
@@ -146,8 +148,10 @@
                                                 ⏱ Pending
                                             @elseif ($isConfirmed)
                                                 ✓ Dikonfirmasi
+                                            @elseif ($isPendingCancellation)
+                                                ⏳ Menunggu Approval Pembatalan
                                             @elseif ($isCancelled && $isWaitingRefund)
-                                                ⏳ Menunggu Pembatalan
+                                                ⏳ Menunggu Refund
                                             @elseif ($isCancelled)
                                                 ✗ Dibatalkan
                                             @elseif ($booking->status === 'completed')
@@ -191,24 +195,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                @if ($booking->points_earned > 0)
-                                    <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-200 rounded-xl p-4 mb-4">
-                                        <div class="flex items-center gap-2 text-yellow-800">
-                                            <i class="ai-star text-yellow-600 text-xl"></i>
-                                            <span class="text-sm font-bold">+{{ number_format($booking->points_earned) }} poin diperoleh! 🎉</span>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if ($booking->points_redeemed > 0)
-                                    <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4 mb-4">
-                                        <div class="flex items-center gap-2 text-green-800">
-                                            <i class="ai-check text-green-600 text-xl"></i>
-                                            <span class="text-sm font-bold">{{ number_format($booking->points_redeemed) }} poin digunakan (-Rp {{ number_format(($booking->points_redeemed / 100) * 1000, 0, ',', '.') }})</span>
-                                        </div>
-                                    </div>
-                                @endif
 
                                 {{-- Payment Status --}}
                                 @if($booking->payment_status)
@@ -293,7 +279,6 @@
                                                     <div class="bg-white rounded-lg p-3 mb-2">
                                                         <p class="text-xs text-orange-600 font-semibold mb-1">Jumlah Refund:</p>
                                                         <p class="text-lg font-bold text-orange-900">Rp {{ number_format($booking->refund_amount, 0, ',', '.') }}</p>
-                                                        <p class="text-xs text-orange-600 mt-1">≈ {{ number_format(floor($booking->refund_amount / 1000)) }} poin</p>
                                                     </div>
                                                     @if ($booking->cancellation_reason)
                                                         <p class="text-xs text-orange-600 italic">

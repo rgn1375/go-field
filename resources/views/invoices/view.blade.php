@@ -233,10 +233,7 @@
                             @if($invoice->discount > 0)
                             <div class="flex justify-between items-center py-3 border-b border-gray-300">
                                 <div>
-                                    <p class="text-gray-700 font-semibold">Diskon (Poin Reward)</p>
-                                    @if($invoice->booking->points_redeemed > 0)
-                                    <p class="text-sm text-gray-500 italic">{{ number_format($invoice->booking->points_redeemed) }} poin digunakan</p>
-                                    @endif
+                                    <p class="text-gray-700 font-semibold">Diskon</p>
                                 </div>
                                 <span class="text-xl font-bold text-green-600">- Rp {{ number_format($invoice->discount, 0, ',', '.') }}</span>
                             </div>

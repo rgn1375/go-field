@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Services\SettingsService;
-use App\Services\PointService;
 use App\Services\BookingValidationService;
 use App\Notifications\BookingConfirmed;
 
@@ -29,17 +28,10 @@ class BookingFormProduction extends Component
     public $email = '';
     public $noTelepon = '';
 
-    // Points and discounts
-    public $usePoints = false;
-    public $pointsToUse = 0;
-    public $availablePoints = 0;
-    public $discountAmount = 0;
-
     // UI state
     public $availableDates = [];
     public $timeSlots = [];
     public $totalPrice = 0;
-    public $originalPrice = 0;
 
     // Validation rules
     protected $rules = [
@@ -78,7 +70,6 @@ class BookingFormProduction extends Component
             $this->namaPemesan = $user->name;
             $this->email = $user->email;
             $this->noTelepon = $user->phone ?? '';
-            $this->availablePoints = $user->points_balance ?? 0;
         }
         
         // Generate available dates (next 30 days)
@@ -116,7 +107,6 @@ class BookingFormProduction extends Component
         $this->jamMulai = null;
         $this->jamSelesai = null;
         $this->totalPrice = 0;
-        $this->originalPrice = 0;
         
         // Generate time slots for selected date
         $this->generateTimeSlots();
@@ -243,69 +233,7 @@ class BookingFormProduction extends Component
             $this->jamSelesai
         );
 
-        $this->originalPrice = $priceData['total_price'];
         $this->totalPrice = $priceData['total_price'];
-
-        // Apply discount if points are being used
-        if ($this->usePoints && $this->pointsToUse > 0) {
-            $this->applyPointsDiscount();
-        }
-    }
-
-    /**
-     * Handle points toggle
-     */
-    public function updatedUsePoints()
-    {
-        if ($this->usePoints) {
-            // Calculate maximum points that can be used (50% of price)
-            $maxPointValue = floor($this->originalPrice * 0.5);
-            $maxPoints = min($maxPointValue * 100, $this->availablePoints); // 100 points = Rp 1,000
-            
-            $this->pointsToUse = $maxPoints;
-            $this->applyPointsDiscount();
-        } else {
-            $this->pointsToUse = 0;
-            $this->discountAmount = 0;
-            $this->totalPrice = $this->originalPrice;
-        }
-    }
-
-    /**
-     * Handle points input update
-     */
-    public function updatedPointsToUse()
-    {
-        // Validate points
-        $maxPointValue = floor($this->originalPrice * 0.5);
-        $maxPoints = min($maxPointValue * 100, $this->availablePoints);
-        
-        if ($this->pointsToUse > $maxPoints) {
-            $this->pointsToUse = $maxPoints;
-        }
-        
-        if ($this->pointsToUse < 0) {
-            $this->pointsToUse = 0;
-        }
-        
-        $this->applyPointsDiscount();
-    }
-
-    /**
-     * Apply points discount
-     */
-    private function applyPointsDiscount()
-    {
-        if ($this->pointsToUse <= 0) {
-            $this->discountAmount = 0;
-            $this->totalPrice = $this->originalPrice;
-            return;
-        }
-
-        // 100 points = Rp 1,000
-        $pointService = app(PointService::class);
-        $this->discountAmount = $pointService->pointsToRupiah($this->pointsToUse);
-        $this->totalPrice = max(0, $this->originalPrice - $this->discountAmount);
     }
 
     /**
@@ -399,30 +327,6 @@ class BookingFormProduction extends Component
             );
 
             $finalPrice = $priceData['total_price'];
-            $pointsUsed = 0;
-            $discountApplied = 0;
-
-            // Handle point redemption
-            if ($this->usePoints && $this->pointsToUse > 0 && Auth::check()) {
-                $user = User::lockForUpdate()->findOrFail(Auth::id());
-                
-                // Validate user has enough points
-                if ($user->points_balance >= $this->pointsToUse) {
-                    $pointService = app(PointService::class);
-                    $discountApplied = $pointService->pointsToRupiah($this->pointsToUse);
-                    
-                    // Ensure discount doesn't exceed 50% of price
-                    $maxDiscount = floor($finalPrice * 0.5);
-                    $discountApplied = min($discountApplied, $maxDiscount);
-                    
-                    $pointsUsed = $this->pointsToUse;
-                    $finalPrice = max(0, $finalPrice - $discountApplied);
-                } else {
-                    // Not enough points - proceed without discount
-                    $pointsUsed = 0;
-                    $discountApplied = 0;
-                }
-            }
 
             // Create booking
             $booking = Booking::create([
@@ -432,20 +336,12 @@ class BookingFormProduction extends Component
                 'jam_mulai' => $this->jamMulai,
                 'jam_selesai' => $this->jamSelesai,
                 'nama_pemesan' => $this->namaPemesan,
-                'no_telepon' => $this->noTelepon,
+                'nomor_telepon' => $this->noTelepon,
                 'email' => $this->email,
-                'total_harga' => $finalPrice,
-                'points_used' => $pointsUsed,
-                'discount_amount' => $discountApplied,
+                'harga' => $finalPrice,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
             ]);
-
-            // Deduct points if used
-            if ($pointsUsed > 0 && Auth::check()) {
-                $pointService = app(PointService::class);
-                $pointService->redeemPoints(Auth::user(), $booking, $pointsUsed);
-            }
 
             DB::commit();
 
@@ -460,7 +356,6 @@ class BookingFormProduction extends Component
                 'date' => $this->selectedDate,
                 'time' => $this->jamMulai . ' - ' . $this->jamSelesai,
                 'price' => $finalPrice,
-                'points_used' => $pointsUsed,
             ]);
 
             session()->flash('success', 'Booking berhasil! Silakan lakukan pembayaran.');

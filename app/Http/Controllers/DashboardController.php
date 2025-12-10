@@ -64,7 +64,7 @@ class DashboardController extends Controller
                 break;
 
             case 'cancelled':
-                $bookings = $baseQuery->where('status', 'cancelled')->cursorPaginate(10);
+                $bookings = $baseQuery->whereIn('status', ['cancelled', 'pending_cancellation'])->cursorPaginate(10);
                 break;
 
             default:

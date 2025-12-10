@@ -71,8 +71,6 @@ class Booking extends Model
         'payment_confirmed_by',
         'payment_notes',
         'status',
-        'points_earned',
-        'points_redeemed',
         'cancellation_reason',
         'cancelled_at',
         'cancelled_by',
@@ -120,14 +118,6 @@ class Booking extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
-    }
-
-    /**
-     * Get the point transactions for this booking.
-     */
-    public function pointTransactions()
-    {
-        return $this->hasMany(UserPoint::class);
     }
 
     /**

@@ -66,30 +66,4 @@ class ProfileController extends Controller
             'message' => 'Password changed successfully. Please login again.',
         ]);
     }
-
-    /**
-     * Get points balance and history
-     */
-    public function points(Request $request)
-    {
-        $user = $request->user();
-
-        $transactions = $user->pointTransactions()
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
-
-        return response()->json([
-            'balance' => $user->points_balance,
-            'transactions' => $transactions->map(function ($transaction) {
-                return [
-                    'id' => $transaction->id,
-                    'type' => $transaction->type,
-                    'amount' => $transaction->amount,
-                    'description' => $transaction->description,
-                    'created_at' => $transaction->created_at->toISOString(),
-                ];
-            }),
-        ]);
-    }
 }

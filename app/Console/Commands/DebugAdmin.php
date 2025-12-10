@@ -54,7 +54,6 @@ class DebugAdmin extends Command
                     'email_verified_at' => now(),
                     'phone' => '081234567890',
                     'address' => 'Admin Office',
-                    'points_balance' => 0,
                 ]);
                 
                 $this->info("✅ Admin created: {$email}");

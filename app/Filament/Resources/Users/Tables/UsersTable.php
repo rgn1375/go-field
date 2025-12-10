@@ -12,7 +12,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Forms\Components\Textarea;
-use App\Services\PointService;
 
 class UsersTable
 {
@@ -37,15 +36,6 @@ class UsersTable
                     ->searchable()
                     ->icon('heroicon-o-phone')
                     ->placeholder('Not set'),
-                
-                TextColumn::make('points_balance')
-                    ->label('Points')
-                    ->numeric()
-                    ->sortable()
-                    ->badge()
-                    ->color('warning')
-                    ->icon('heroicon-o-star')
-                    ->formatStateUsing(fn ($state) => number_format($state) . ' pts'),
                 
                 TextColumn::make('bookings_count')
                     ->label('Total Bookings')
@@ -93,27 +83,6 @@ class UsersTable
                     }),
             ])
             ->recordActions([
-                Action::make('adjust_points')
-                    ->label('Adjust Points')
-                    ->icon('heroicon-o-currency-dollar')
-                    ->color('warning')
-                    ->form([
-                        TextInput::make('points')
-                            ->label('Points Amount')
-                            ->numeric()
-                            ->required()
-                            ->helperText('Use positive numbers to add, negative to deduct'),
-                        Textarea::make('reason')
-                            ->label('Reason')
-                            ->required()
-                            ->placeholder('e.g., Manual adjustment for...'),
-                    ])
-                    ->action(function ($record, array $data) {
-                        $pointService = app(PointService::class);
-                        $pointService->adjustPoints($record, (int)$data['points'], $data['reason']);
-                    })
-                    ->successNotificationTitle('Points adjusted successfully'),
-                
                 EditAction::make(),
             ])
             ->toolbarActions([

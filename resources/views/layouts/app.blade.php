@@ -106,7 +106,7 @@
                                     </div>
                                     <div class="text-left hidden sm:block">
                                         <div class="text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ number_format(Auth::user()->points_balance) }} Poin</div>
+                                        <div class="text-xs text-gray-500">{{ Auth::user()->email }}</div>
                                     </div>
                                     <svg class="w-4 h-4 text-gray-600 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -185,7 +185,7 @@
                             </div>
                             <div>
                                 <div class="text-sm font-bold text-gray-900">{{ Auth::user()->name }}</div>
-                                <div class="text-xs text-emerald-700">{{ number_format(Auth::user()->points_balance) }} Poin</div>
+                                <div class="text-xs text-emerald-700">{{ Auth::user()->email }}</div>
                             </div>
                         </div>
                         

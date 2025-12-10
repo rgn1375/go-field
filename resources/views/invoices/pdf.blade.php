@@ -463,16 +463,9 @@
                 </tr>
                 @if($invoice->discount > 0)
                 <tr>
-                    <td class="label">Diskon (Poin):</td>
+                    <td class="label">Diskon:</td>
                     <td class="value" style="color: #10b981;">- Rp {{ number_format($invoice->discount, 0, ',', '.') }}</td>
                 </tr>
-                @if($invoice->booking->points_redeemed > 0)
-                <tr>
-                    <td colspan="2" style="text-align: right; font-size: 8.5pt; color: #666; font-style: italic;">
-                        ({{ number_format($invoice->booking->points_redeemed) }} poin digunakan)
-                    </td>
-                </tr>
-                @endif
                 @endif
                 <tr class="total-row">
                     <td class="label">TOTAL PEMBAYARAN:</td>

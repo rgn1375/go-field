@@ -41,7 +41,6 @@ class CreateAdmin extends Command
             'email_verified_at' => now(),
             'phone' => '081234567890',
             'address' => 'GoField Admin',
-            'points_balance' => 0,
         ]);
 
         $this->info("✅ Admin user created successfully!");

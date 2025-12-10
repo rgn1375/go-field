@@ -56,22 +56,6 @@ class BookingsRelationManager extends RelationManager
                     ->money('IDR')
                     ->icon('heroicon-o-currency-dollar'),
                 
-                TextColumn::make('points_earned')
-                    ->label('Points Earned')
-                    ->badge()
-                    ->color('warning')
-                    ->formatStateUsing(fn ($state) => $state > 0 ? '+' . number_format($state) : '-')
-                    ->icon('heroicon-o-arrow-up')
-                    ->visible(fn ($record) => $record && $record->points_earned > 0),
-                
-                TextColumn::make('points_redeemed')
-                    ->label('Points Used')
-                    ->badge()
-                    ->color('danger')
-                    ->formatStateUsing(fn ($state) => $state > 0 ? '-' . number_format($state) : '-')
-                    ->icon('heroicon-o-arrow-down')
-                    ->visible(fn ($record) => $record && $record->points_redeemed > 0),
-                
                 BadgeColumn::make('status')
                     ->colors([
                         'warning' => 'pending',

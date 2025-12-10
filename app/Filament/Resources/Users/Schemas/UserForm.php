@@ -28,12 +28,6 @@ class UserForm
                     ->tel()
                     ->maxLength(20)
                     ->placeholder('08123456789'),
-                TextInput::make('points_balance')
-                    ->label('Points Balance')
-                    ->numeric()
-                    ->default(0)
-                    ->readOnly()
-                    ->helperText('Use table action to adjust points'),
                 Textarea::make('address')
                     ->rows(3)
                     ->maxLength(500)

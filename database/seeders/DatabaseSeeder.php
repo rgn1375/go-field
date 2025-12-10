@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Lapangan;
 use App\Models\Booking;
-use App\Models\UserPoint;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -30,7 +29,6 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('admin123'),
                 'phone' => '081234567890',
                 'address' => 'Jl. Admin No. 123, Jakarta',
-                'points_balance' => 0,
                 'is_admin' => true,
                 'email_verified_at' => now(),
             ]
@@ -127,7 +125,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'phone' => '081234567891',
                 'address' => 'Jl. User Baru No. 1, Bandung',
-                'points_balance' => 0,
+                
                 'email_verified_at' => now(),
             ]
         );
@@ -139,7 +137,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'phone' => '081234567892',
                 'address' => 'Jl. Pemain Rutin No. 5, Surabaya',
-                'points_balance' => 500,
+                
                 'email_verified_at' => now(),
             ]
         );
@@ -151,7 +149,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'phone' => '081234567893',
                 'address' => 'Jl. Pelanggan Setia No. 10, Yogyakarta',
-                'points_balance' => 2000,
+                
                 'email_verified_at' => now(),
             ]
         );
@@ -161,9 +159,9 @@ class DatabaseSeeder extends Seeder
         $lapanganBasket = Lapangan::where('sport_type_id', $basketballType->id)->first();
         $lapanganBadminton = Lapangan::where('sport_type_id', $badmintonType->id)->first();
 
-        // Create sample bookings with point transactions
+        // Create sample bookings
         
-        // PAST COMPLETED BOOKING - Regular User (earned points)
+        // PAST COMPLETED BOOKING - Regular User
         $pastBooking = Booking::create([
             'lapangan_id' => $lapanganFutsal->id,
             'user_id' => $regularUser->id,
@@ -173,21 +171,12 @@ class DatabaseSeeder extends Seeder
             'nama_pemesan' => $regularUser->name,
             'nomor_telepon' => $regularUser->phone,
             'email' => $regularUser->email,
+            'harga' => 300000,
             'status' => 'completed',
-            'points_earned' => 3000, // 1% of 300000
-            'points_redeemed' => 0,
+            'payment_status' => 'paid',
         ]);
 
-        UserPoint::create([
-            'user_id' => $regularUser->id,
-            'booking_id' => $pastBooking->id,
-            'type' => 'earned',
-            'points' => 3000,
-            'balance_after' => 3000,
-            'description' => 'Points earned from booking ' . $pastBooking->id,
-        ]);
-
-        // UPCOMING CONFIRMED BOOKING - Regular User (redeemed 200 points, will earn 2000)
+        // UPCOMING CONFIRMED BOOKING - Regular User
         $upcomingBooking = Booking::create([
             'lapangan_id' => $lapanganBasket->id,
             'user_id' => $regularUser->id,
@@ -197,21 +186,12 @@ class DatabaseSeeder extends Seeder
             'nama_pemesan' => $regularUser->name,
             'nomor_telepon' => $regularUser->phone,
             'email' => $regularUser->email,
+            'harga' => 350000,
             'status' => 'confirmed',
-            'points_earned' => 3500, // 1% of 350000
-            'points_redeemed' => 200,
+            'payment_status' => 'paid',
         ]);
 
-        UserPoint::create([
-            'user_id' => $regularUser->id,
-            'booking_id' => $upcomingBooking->id,
-            'type' => 'redeemed',
-            'points' => -200,
-            'balance_after' => 2800,
-            'description' => 'Points redeemed for booking ' . $upcomingBooking->id,
-        ]);
-
-        // CANCELLED BOOKING - Regular User (points refunded)
+        // CANCELLED BOOKING - Regular User
         $cancelledBooking = Booking::create([
             'lapangan_id' => $lapanganBadminton->id,
             'user_id' => $regularUser->id,
@@ -221,54 +201,35 @@ class DatabaseSeeder extends Seeder
             'nama_pemesan' => $regularUser->name,
             'nomor_telepon' => $regularUser->phone,
             'email' => $regularUser->email,
+            'harga' => 200000,
             'status' => 'cancelled',
-            'points_earned' => 0,
-            'points_redeemed' => 300,
+            'cancellation_reason' => 'User request',
         ]);
 
-        UserPoint::create([
-            'user_id' => $regularUser->id,
-            'booking_id' => $cancelledBooking->id,
-            'type' => 'redeemed',
-            'points' => -300,
-            'balance_after' => 2500,
-            'description' => 'Points redeemed for booking ' . $cancelledBooking->id,
-        ]);
-
-        UserPoint::create([
-            'user_id' => $regularUser->id,
-            'booking_id' => $cancelledBooking->id,
-            'type' => 'earned',
-            'points' => 300,
-            'balance_after' => 2800,
-            'description' => 'Points refunded from cancelled booking ' . $cancelledBooking->id,
-        ]);
-
-        // VIP USER BOOKINGS (multiple past bookings showing point accumulation)
+        // VIP USER BOOKINGS (multiple past bookings)
         $vipBookings = [
             [
                 'date' => Carbon::now()->subDays(30),
                 'lapangan' => $lapanganFutsal,
-                'points_earned' => 3000,
                 'time' => '08:00-09:00',
+                'harga' => 300000,
             ],
             [
                 'date' => Carbon::now()->subDays(20),
                 'lapangan' => $lapanganBasket,
-                'points_earned' => 3500,
                 'time' => '10:00-11:00',
+                'harga' => 350000,
             ],
             [
                 'date' => Carbon::now()->subDays(10),
                 'lapangan' => $lapanganFutsal,
-                'points_earned' => 3000,
                 'time' => '14:00-15:00',
+                'harga' => 300000,
             ],
         ];
 
-        $vipBalance = 0;
         foreach ($vipBookings as $vipData) {
-            $vipBooking = Booking::create([
+            Booking::create([
                 'lapangan_id' => $vipData['lapangan']->id,
                 'user_id' => $vipUser->id,
                 'tanggal' => $vipData['date']->format('Y-m-d'),
@@ -277,36 +238,14 @@ class DatabaseSeeder extends Seeder
                 'nama_pemesan' => $vipUser->name,
                 'nomor_telepon' => $vipUser->phone,
                 'email' => $vipUser->email,
+                'harga' => $vipData['harga'],
                 'status' => 'completed',
-                'points_earned' => $vipData['points_earned'],
-                'points_redeemed' => 0,
-            ]);
-
-            $vipBalance += $vipData['points_earned'];
-
-            UserPoint::create([
-                'user_id' => $vipUser->id,
-                'booking_id' => $vipBooking->id,
-                'type' => 'earned',
-                'points' => $vipData['points_earned'],
-                'balance_after' => $vipBalance,
-                'description' => 'Points earned from booking ' . $vipBooking->id,
+                'payment_status' => 'paid',
             ]);
         }
 
-        // VIP User - Manual admin bonus (showing adjustment feature)
-        $vipBalance += 500;
-        UserPoint::create([
-            'user_id' => $vipUser->id,
-            'booking_id' => null,
-            'type' => 'adjusted',
-            'points' => 500,
-            'balance_after' => $vipBalance,
-            'description' => 'Bonus points for loyal customer',
-        ]);
-
-        // VIP User - Upcoming booking with large point redemption
-        $vipUpcoming = Booking::create([
+        // VIP User - Upcoming booking
+        Booking::create([
             'lapangan_id' => $lapanganBasket->id,
             'user_id' => $vipUser->id,
             'tanggal' => Carbon::now()->addDays(2)->format('Y-m-d'),
@@ -315,33 +254,9 @@ class DatabaseSeeder extends Seeder
             'nama_pemesan' => $vipUser->name,
             'nomor_telepon' => $vipUser->phone,
             'email' => $vipUser->email,
+            'harga' => 350000,
             'status' => 'confirmed',
-            'points_earned' => 3500,
-            'points_redeemed' => 1750, // 50% discount (max allowed)
-        ]);
-
-        $vipBalance -= 1750;
-        UserPoint::create([
-            'user_id' => $vipUser->id,
-            'booking_id' => $vipUpcoming->id,
-            'type' => 'redeemed',
-            'points' => -1750,
-            'balance_after' => $vipBalance,
-            'description' => 'Points redeemed for booking ' . $vipUpcoming->id,
-        ]);
-
-        // Update final points balances
-        $regularUser->update(['points_balance' => 500]); // After transactions: 3000 - 200 - 300 + 300 = 2800, adjusted to 500 for testing
-        $vipUser->update(['points_balance' => 2000]); // Final balance after all transactions
-
-        // Regular User - Manual point adjustment (negative - showing deduction)
-        UserPoint::create([
-            'user_id' => $regularUser->id,
-            'booking_id' => null,
-            'type' => 'adjusted',
-            'points' => -2300,
-            'balance_after' => 500,
-            'description' => 'Admin adjustment - testing point deduction',
+            'payment_status' => 'paid',
         ]);
 
         // Guest bookings (no user_id) - showing system works for both guest and authenticated
@@ -354,20 +269,20 @@ class DatabaseSeeder extends Seeder
             'nama_pemesan' => 'Guest Booking Test',
             'nomor_telepon' => '081999999999',
             'email' => 'guest@example.com',
+            'harga' => 300000,
             'status' => 'confirmed',
-            'points_earned' => 0,
-            'points_redeemed' => 0,
+            'payment_status' => 'unpaid',
+            
         ]);
 
         $this->command->info('✅ Database seeding completed successfully!');
         $this->command->info('📊 Created:');
         $this->command->info('   - 1 Admin user (admin@admin.com / admin123)');
         $this->command->info('   - 3 Test users:');
-        $this->command->info('     • user@test.com (0 points, no bookings)');
-        $this->command->info('     • regular@test.com (500 points, 3 bookings)');
-        $this->command->info('     • vip@test.com (2000 points, 4 bookings)');
+        $this->command->info('     • user@test.com (no bookings)');
+        $this->command->info('     • regular@test.com (3 bookings)');
+        $this->command->info('     • vip@test.com (4 bookings)');
         $this->command->info('   - 6 Sports facilities (Futsal, Basket, Volly, Badminton, Tennis)');
         $this->command->info('   - 8 Sample bookings (past, upcoming, cancelled)');
-        $this->command->info('   - Point transaction history with earn/redeem/adjust examples');
     }
 }

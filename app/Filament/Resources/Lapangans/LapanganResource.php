@@ -123,11 +123,10 @@ class LapanganResource extends Resource
                     ->image()
                     ->multiple()
                     ->maxFiles(3)
-                    ->required()
                     ->columnSpanFull()
                     ->helperText('Unggah hingga 3 gambar.')
-                    ->disk('public')
-                    ->directory('lapangan-images'),
+                    ->directory('lapangan-images')
+                    ->visibility('public'),
                 
                 Select::make('status')
                     ->label('Status')

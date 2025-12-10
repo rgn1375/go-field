@@ -4,8 +4,12 @@ namespace App\Observers;
 
 use App\Models\Booking;
 use App\Models\Invoice;
+use App\Models\User;
+use App\Notifications\NewBookingNotification;
+use App\Notifications\RefundRequestNotification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class BookingObserver
 {
@@ -15,6 +19,9 @@ class BookingObserver
     public function created(Booking $booking): void
     {
         $this->clearBookingCaches($booking);
+        
+        // Notify all admins about new booking
+        $this->notifyAdminsAboutNewBooking($booking);
     }
 
     /**
@@ -27,6 +34,11 @@ class BookingObserver
         // Auto-create invoice when payment_status changes to 'paid'
         if ($booking->wasChanged('payment_status') && $booking->payment_status === 'paid') {
             $this->createInvoiceForBooking($booking);
+        }
+        
+        // Notify admins when status changes to pending_cancellation (refund request)
+        if ($booking->wasChanged('status') && $booking->status === 'pending_cancellation' && $booking->refund_amount > 0) {
+            $this->notifyAdminsAboutRefundRequest($booking);
         }
     }
 
@@ -80,10 +92,8 @@ class BookingObserver
         try {
             // Calculate amounts
             $subtotal = $booking->harga ?? 0;
-            $discount = $booking->points_redeemed > 0
-                ? ($booking->points_redeemed / 100)
-                : 0;
-            $total = $subtotal - $discount;
+            $discount = 0;
+            $total = $subtotal;
 
             // Create invoice
             $invoice = Invoice::create([
@@ -103,6 +113,53 @@ class BookingObserver
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to create invoice automatically', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Notify all admins about new booking
+     */
+    private function notifyAdminsAboutNewBooking(Booking $booking): void
+    {
+        try {
+            $admins = User::where('is_admin', true)->get();
+            
+            Notification::send($admins, new NewBookingNotification($booking));
+            
+            Log::info('Admins notified about new booking', [
+                'booking_id' => $booking->id,
+                'booking_code' => $booking->booking_code,
+                'admin_count' => $admins->count()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify admins about new booking', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Notify all admins about refund request
+     */
+    private function notifyAdminsAboutRefundRequest(Booking $booking): void
+    {
+        try {
+            $admins = User::where('is_admin', true)->get();
+            
+            Notification::send($admins, new RefundRequestNotification($booking));
+            
+            Log::info('Admins notified about refund request', [
+                'booking_id' => $booking->id,
+                'booking_code' => $booking->booking_code,
+                'refund_amount' => $booking->refund_amount,
+                'admin_count' => $admins->count()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to notify admins about refund request', [
                 'booking_id' => $booking->id,
                 'error' => $e->getMessage()
             ]);

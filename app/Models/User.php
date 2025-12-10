@@ -8,9 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 
-class User extends Authenticatable implements FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail, HasName
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -26,7 +27,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'password',
         'phone',
         'address',
-        'points_balance',
         'is_admin',
     ];
 
@@ -50,7 +50,6 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'points_balance' => 'integer',
             'is_admin' => 'boolean',
         ];
     }
@@ -64,19 +63,19 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     /**
-     * Get the point transactions for the user.
-     */
-    public function pointTransactions()
-    {
-        return $this->hasMany(UserPoint::class);
-    }
-
-    /**
      * Determine if the user can access the Filament admin panel.
      */
     public function canAccessPanel(Panel $panel): bool
     {
         // Only allow users with is_admin = true to access admin panel
         return $this->is_admin === true && $this->hasVerifiedEmail();
+    }
+
+    /**
+     * Get the user's name for Filament.
+     */
+    public function getFilamentName(): string
+    {
+        return $this->name;
     }
 }

@@ -1,6 +1,6 @@
 # 🏟️ GoField - Multi-Sport Field Booking System
 
-A modern, production-ready sports facility booking platform built with Laravel 12, Filament 4, and Livewire 2. Features include user authentication, point rewards system, real-time booking, and comprehensive admin panel.
+A modern, production-ready sports facility booking platform built with Laravel 12, Filament 4, and Livewire 2. Features include user authentication, real-time booking, and comprehensive admin panel.
 
 ![Laravel](https://img.shields.io/badge/Laravel-12.x-red?logo=laravel)
 ![Filament](https://img.shields.io/badge/Filament-4.x-orange?logo=laravel)
@@ -14,37 +14,32 @@ A modern, production-ready sports facility booking platform built with Laravel 1
 ### 🎯 User Features
 - ✅ **Multi-Sport Booking**: Futsal, Basketball, Volleyball, Badminton, Tennis
 - ✅ **Authentication System**: Laravel Breeze with enhanced profile management
-- ✅ **Point Rewards**: Earn 1% points from every booking, redeem for discounts
 - ✅ **Real-Time Availability**: Live slot checking with Livewire
 - ✅ **User Dashboard**: Track upcoming, past, and cancelled bookings
-- ✅ **Profile Management**: Update personal info and view point history
+- ✅ **Profile Management**: Update personal info
 - ✅ **Auto-fill Booking**: Seamless experience for authenticated users
 - ✅ **Guest Booking**: Book without account registration
-- ✅ **Booking Cancellation**: Cancel with automatic point refund
+- ✅ **Booking Cancellation**: Cancel with automatic refund processing
 
 ### 🔧 Admin Features
 - ✅ **Filament Admin Panel**: Modern, intuitive interface at `/admin`
 - ✅ **User Management**: 
-  - View all users with point balances
-  - Manually adjust points (add/deduct with reason)
+  - View all users
   - View user booking history
-  - Track point transaction history
   - Filter by verified status and booking activity
 - ✅ **Booking Management**:
   - Complete CRUD operations
   - Status management (pending/confirmed/completed/cancelled)
   - Cancel with reason and auto-refund
   - Search and filter capabilities
+- ✅ **Admin Notifications**: 
+  - Real-time notifications for new bookings (🔔)
+  - Refund request alerts (⚠️)
+  - Email + Database notifications
+  - Bell icon with badge counter in admin panel
 - ✅ **Facility Management**: Manage lapangan with image gallery
 - ✅ **Settings**: Configure operating hours dynamically
 - ✅ **Multi-channel Notifications**: Email + WhatsApp via Fonnte
-
-### 📊 Point System
-- 🎁 **Earn**: 1% of booking price as points
-- 💰 **Redeem**: 100 points = Rp 1,000 discount
-- 🎯 **Max Discount**: 50% of booking price
-- 🔄 **Auto-Refund**: Points returned on cancellation
-- 📝 **History**: Complete transaction tracking
 
 ---
 
@@ -169,24 +164,11 @@ FONNTE_API_KEY=your_api_key_here
 
 ## 🎯 Key Features Explained
 
-### Point System Flow
-1. **Booking Created** → User books facility
-2. **Booking Confirmed** → Admin confirms (or auto-confirmed)
-3. **Booking Completed** → User plays, earns 1% points
-4. **Point Redemption** → Use points for discount on next booking
-5. **Cancellation Refund** → Redeemed points automatically refunded
-
 ### Real-Time Slot Checking
 - Livewire component loads booked slots from database
 - Generates available time slots (1-hour intervals)
 - Visual feedback: Green (available), Red (booked), Gray (out of hours)
 - Prevents double-booking with overlap detection
-
-### Admin Point Management
-- **View Balance**: See current points for any user
-- **Adjust Points**: Add bonus or deduct with reason
-- **Transaction History**: Complete audit trail
-- **Booking Integration**: Link points to specific bookings
 
 ---
 
