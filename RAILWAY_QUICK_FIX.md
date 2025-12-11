@@ -42,7 +42,7 @@ Error: `SQLSTATE[HY000] [2002] No such file or directory`
 APP_NAME=GoField
 APP_ENV=production
 APP_DEBUG=false
-APP_KEY=base64:wdnyk61+qWaoL3wJ/q3gDzDgWHqyJjBNRN5QvTHByo4=
+APP_KEY=base64:...
 APP_URL=${{RAILWAY_PUBLIC_DOMAIN}}
 
 APP_LOCALE=id
@@ -74,13 +74,13 @@ MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=9inehhhhh@gmail.com
-MAIL_PASSWORD=exuv-kbgd-xorq-pwac
+MAIL_PASSWORD=...
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@gofield.com
 MAIL_FROM_NAME=GoField
 
 # WhatsApp
-FONNTE_API_KEY=SaZun5iwc3JcDmydfoET
+FONNTE_API_KEY=...
 FONNTE_URL=https://api.fonnte.com/send
 
 # Logging
