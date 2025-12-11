@@ -1,28 +1,100 @@
-*.log
-.DS_Store
-.env
-.env.backup
-.env.local
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
+# Laravel
 /.phpunit.cache
-/.vscode
-/.zed
-/auth.json
 /node_modules
 /public/build
 /public/hot
 /public/storage
 /storage/*.key
-/storage/pail
 /vendor
-/docs
-/tests
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
 Homestead.json
 Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# Filament
+/storage/framework/filament/
+
+# IDE
+/.fleet
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+.DS_Store
 Thumbs.db
-/.qodo
+
+# Build Assets
+/public/css/app.css
+/public/js/app.js
+/public/mix-manifest.json
+
+# Cache & Logs
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/app/*
+!/storage/app/.gitkeep
+!/storage/app/public
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
+!/storage/framework/cache/data
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/testing/*
+!/storage/framework/testing/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+
+# Testing
+.phpunit.result.cache
+coverage/
+tests/_output/*
+tests/_support/_generated
+
+# Railway
+.railway/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+*.bak
+*.swp
+*~
+
+# Composer
+composer.phar
+composer.lock
+
+# NPM/Yarn
+package-lock.json
+yarn.lock
+
+# Laravel specific
+/public/vendor/
+/public/storage
+rr
+sail
+
 copilot-instructions.md
+/docs/
+/tests/
