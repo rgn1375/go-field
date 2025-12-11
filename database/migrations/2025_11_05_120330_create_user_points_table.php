@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('booking_id')->nullable()->constrained()->onDelete('set null');
-            $table->enum('type', ['earned', 'redeemed', 'adjusted'])->default('earned');
+            $table->enum('type', ['earned', 'redeemed', 'adjusted', 'refund'])->default('earned');
             $table->integer('points'); // Positive for earned, negative for redeemed
             $table->integer('balance_after'); // Balance after this transaction
             $table->text('description')->nullable();

@@ -3,6 +3,10 @@ builder = "nixpacks"
 buildCommand = "composer install --optimize-autoloader --no-dev && npm ci && npm run build"
 
 [deploy]
-startCommand = "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=$PORT"
+startCommand = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
+
+[health]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
